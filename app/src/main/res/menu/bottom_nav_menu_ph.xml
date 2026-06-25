@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_profile" android:icon="@drawable/ic_baby_profile" android:title="Hồ sơ" />
+    <item android:id="@+id/nav_fee" android:icon="@drawable/ic_wallet" android:title="Học phí" />
+    <item android:id="@+id/nav_overview" android:icon="@android:drawable/ic_dialog_dialer" android:title="Tổng quan" />
+    <item android:id="@+id/nav_activity" android:icon="@android:drawable/ic_menu_recent_history" android:title="Hoạt động" />
+    <item android:id="@+id/nav_contact" android:icon="@drawable/ic_chat" android:title="Liên lạc" />
+</menu>

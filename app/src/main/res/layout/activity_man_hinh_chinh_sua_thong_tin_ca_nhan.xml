@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F8FAFC">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtHeaderTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cập nhật thông tin"
+            android:textColor="#333333"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblUploadAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="CẬP NHẬT ẢNH ĐẠI DIỆN"
+            android:textColor="#005A36"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/txtHeaderTitle"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutUploadZone"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_dashed_upload"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/lblUploadAvatar">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_upload_cloud"
+                app:tint="#005A36" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Nhấn để tải lên"
+                android:textColor="#005A36"
+                android:textStyle="bold"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Hỗ trợ JPG, PNG, PDF (Tối đa 5MB)"
+                android:textColor="#777777"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/lblPersonalInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="THÔNG TIN CÁ NHÂN"
+            android:textColor="#005A36"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/layoutUploadZone"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblParentName"
+            style="@style/FormLabelStyle"
+            android:text="Họ và tên:"
+            app:layout_constraintTop_toTopOf="@id/edtParentName"
+            app:layout_constraintBottom_toBottomOf="@id/edtParentName"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblPhone"
+            style="@style/FormLabelStyle"
+            android:text="Số điện thoại:"
+            app:layout_constraintTop_toTopOf="@id/edtPhone"
+            app:layout_constraintBottom_toBottomOf="@id/edtPhone"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblPosition"
+            style="@style/FormLabelStyle"
+            android:text="Chức vụ:"
+            app:layout_constraintTop_toTopOf="@id/edtPosition"
+            app:layout_constraintBottom_toBottomOf="@id/edtPosition"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblEmail"
+            style="@style/FormLabelStyle"
+            android:text="Email:"
+            app:layout_constraintTop_toTopOf="@id/edtEmail"
+            app:layout_constraintBottom_toBottomOf="@id/edtEmail"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/lblAddress"
+            style="@style/FormLabelStyle"
+            android:text="Địa chỉ:"
+            app:layout_constraintTop_toTopOf="@id/edtAddress"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/formBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="lblParentName,lblPhone,lblPosition,lblEmail,lblAddress" />
+
+        <EditText
+            android:id="@+id/edtParentName"
+            style="@style/FormInputStyle"
+            android:layout_marginTop="12dp"
+            android:text="Minh Thư"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/formBarrier"
+            app:layout_constraintTop_toBottomOf="@id/lblPersonalInfo" />
+
+        <EditText
+            android:id="@+id/edtPhone"
+            style="@style/FormInputStyle"
+            android:layout_marginTop="8dp"
+            android:text="0902xxxxxx"
+            android:inputType="phone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/formBarrier"
+            app:layout_constraintTop_toBottomOf="@id/edtParentName" />
+
+        <EditText
+            android:id="@+id/edtPosition"
+            style="@style/FormInputStyle"
+            android:layout_marginTop="8dp"
+            android:text="Giáo viên"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/formBarrier"
+            app:layout_constraintTop_toBottomOf="@id/edtPhone" />
+
+        <EditText
+            android:id="@+id/edtEmail"
+            style="@style/FormInputStyle"
+            android:layout_marginTop="8dp"
+            android:text="minhthu@kindercare.edu.vn"
+            android:inputType="textEmailAddress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/formBarrier"
+            app:layout_constraintTop_toBottomOf="@id/edtPosition" />
+
+        <EditText
+            android:id="@+id/edtAddress"
+            style="@style/FormInputStyle"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:lines="3"
+            android:paddingTop="6dp"
+            android:text="42 Nguyễn Huệ, Quận 1 , TP.HCM"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/formBarrier"
+            app:layout_constraintTop_toBottomOf="@id/edtEmail" />
+
+        <TextView
+            android:id="@+id/lblBio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="TIỂU SỬ / GIỚI THIỆU NGẮN"
+            android:textColor="#5A6B61"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/edtAddress"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/edtBio"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_input_box"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:text="Giáo viên với 5 năm kinh nghiệm trong giáo dục mầm non, chuyên về phát triển ngôn ngữ và kỹ năng xã hội cho trẻ."
+            android:textColor="#2E3A33"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/lblBio" />
+
+        <TextView
+            android:id="@+id/txtCharCounter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_marginTop="4dp"
+            android:text="110 / 500 ký tự"
+            android:textColor="#9EADA4"
+            android:textSize="11sp"
+            app:layout_constraintTop_toBottomOf="@id/edtBio" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp"
+            android:text="Cập nhật thông tin"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#005A36"
+            app:cornerRadius="8dp"
+            app:layout_constraintTop_toBottomOf="@id/txtCharCounter" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="Hủy"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#8A948F"
+            app:cornerRadius="8dp"
+            app:layout_constraintTop_toBottomOf="@id/btnSubmit"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

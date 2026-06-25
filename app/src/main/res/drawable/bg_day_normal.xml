@@ -1,0 +1,5 @@
+<!-- Ô ngày xám mặc định (layout  lịch điểm danh)-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E0E0E0"/>
+    <corners android:radius="4dp"/>
+</shape>

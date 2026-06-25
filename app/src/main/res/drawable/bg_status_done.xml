@@ -1,0 +1,5 @@
+<!-- (layout sức khoẻ và thể chất) Label Đã tiêm màu xanh lá -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E8F5E9" />
+    <corners android:radius="12dp" />
+</shape>

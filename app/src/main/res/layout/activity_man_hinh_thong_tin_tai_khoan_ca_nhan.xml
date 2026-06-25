@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/layoutProfileFooter"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/viewHeaderBg"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="#005A36"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_back_white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Thông tin tài khoản"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/btnBack"
+                app:layout_constraintStart_toEndOf="@id/btnBack"
+                app:layout_constraintTop_toTopOf="@id/btnBack" />
+
+            <ImageView
+                android:id="@+id/btnSettings"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_settings_white"
+                app:layout_constraintBottom_toBottomOf="@id/btnBack"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/btnBack" />
+
+            <LinearLayout
+                android:id="@+id/layoutNameCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginTop="140dp"
+                android:background="@drawable/bg_white_card"
+                android:elevation="4dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingTop="45dp"
+                android:paddingBottom="16dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tvProfileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Minh Thư"
+                    android:textColor="#0F172A"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProfilePositionSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Giáo viên mầm non"
+                    android:textColor="#64748B"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgProfileAvatar"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
+                android:src="@drawable/avatar"
+                android:padding="2dp"
+                android:elevation="8dp"
+                app:layout_constraintBottom_toTopOf="@id/layoutNameCard"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/layoutNameCard"
+                app:shapeAppearanceOverlay="@style/CircleImageStyle"
+                app:strokeColor="@android:color/white"
+                app:strokeWidth="4dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutInfoList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                app:layout_constraintTop_toBottomOf="@id/layoutNameCard">
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/stat_sys_phone_call"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfilePhone"
+                        style="@style/ProfileTextStyle"
+                        android:text="0902xxxxxx" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_agenda"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfilePositionDetail"
+                        style="@style/ProfileTextStyle"
+                        android:text="Giáo viên mầm non" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/sym_action_email"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileEmail"
+                        style="@style/ProfileTextStyle"
+                        android:text="minhthu@kindercare.edu.vn" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_dialog_map"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileAddress"
+                        style="@style/ProfileTextStyle"
+                        android:text="42 Nguyễn Huệ, Quận 1, TP. HCM" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileStatus"
+                        style="@style/ProfileTextStyle"
+                        android:text="Trạng thái: Đang hoạt động" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="GIỚI THIỆU"
+                    android:textColor="#64748B"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProfileBio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_bio_box"
+                    android:padding="16dp"
+                    android:text="..."
+                    android:textColor="#334155"
+                    android:textSize="14sp"
+                    android:lineSpacingMultiplier="1.4"/>
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/layoutProfileFooter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdateProfile"
+            style="@style/ProfileFooterButtonStyle"
+            android:text="Chỉnh sửa thông tin"
+            app:backgroundTint="#005A36" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChangePassword"
+            style="@style/ProfileFooterButtonStyle"
+            android:text="Đổi mật khẩu"
+            app:backgroundTint="#005A36" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogout"
+            style="@style/ProfileFooterButtonStyle"
+            android:text="Đăng xuất"
+            app:backgroundTint="#B91C1C" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,5 @@
+<!-- Ô ngày đi học màu xanh (layout  lịch điểm danh)-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#115E28"/>
+    <corners android:radius="4dp"/>
+</shape>

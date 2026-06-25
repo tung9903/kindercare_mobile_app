@@ -1,0 +1,5 @@
+<!-- (layout lịch điểm danh) Khung chứa ngày tháng sự kiện màu tối -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#2D3732"/>
+    <corners android:radius="12dp"/>
+</shape>

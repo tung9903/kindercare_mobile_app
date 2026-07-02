@@ -26,7 +26,7 @@ class ManHinhChiTietThongBao : AppCompatActivity() {
         }
 
         val notiId = intent.getIntExtra("NOTI_ID", -1)
-        val notification = DataManager.allNotifications.find { it.NotifID == notiId }
+        val notification = DataManager.allNotifications.find { it.notifId == notiId }
 
         if (notification == null) {
             finish()
@@ -34,7 +34,7 @@ class ManHinhChiTietThongBao : AppCompatActivity() {
         }
 
         // Mark as read when opened
-        notification.IsRead = true
+        notification.isRead = 1
 
         setupUI(notification)
     }
@@ -43,12 +43,12 @@ class ManHinhChiTietThongBao : AppCompatActivity() {
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<MaterialButton>(R.id.btnConfirm).setOnClickListener { finish() }
 
-        findViewById<TextView>(R.id.tvNotiTitle).text = noti.Title
-        findViewById<TextView>(R.id.tvNotiMessage).text = noti.Message
-        findViewById<TextView>(R.id.tvNotiTime).text = DateHelper.formatLongToDate(noti.CreatedAt) + " • " + DateHelper.formatLongToTime(noti.CreatedAt)
+        findViewById<TextView>(R.id.tvNotiTitle).text = noti.title
+        findViewById<TextView>(R.id.tvNotiMessage).text = noti.message
+        findViewById<TextView>(R.id.tvNotiTime).text = DateHelper.formatLongToDate(noti.createdAt) + " • " + DateHelper.formatLongToTime(noti.createdAt)
 
         val tvType = findViewById<TextView>(R.id.tvNotiType)
-        when (noti.Type) {
+        when (noti.type) {
             "SYSTEM" -> {
                 tvType.text = "Hệ thống"
                 tvType.setBackgroundResource(R.drawable.bg_rounded_blue)

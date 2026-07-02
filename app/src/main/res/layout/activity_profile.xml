@@ -116,6 +116,20 @@
                     android:text="Địa chỉ" />
             </LinearLayout>
 
+            <!-- ID Card Section -->
+            <LinearLayout
+                style="@style/ProfileInfoRowStyle">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_lock_lock"
+                    app:tint="@color/primary_green" />
+                <TextView
+                    android:id="@+id/tvIdCard"
+                    style="@style/ProfileTextStyle"
+                    android:text="Số CCCD" />
+            </LinearLayout>
+
             <!-- Role/Status Section -->
             <LinearLayout
                 style="@style/ProfileInfoRowStyle">

@@ -26,10 +26,10 @@ class HealthRecordAdapter(private val recordList: List<HealthRecord>) :
 
     override fun onBindViewHolder(holder: HealthViewHolder, position: Int) {
         val record = recordList[position]
-        holder.tvTermPeriod.text = record.TermPeriod
-        holder.tvBMIValue.text = "BMI: ${record.BMI}"
-        holder.tvHeightValue.text = "Chiều cao: ${record.Height} cm"
-        holder.tvWeightValue.text = "Cân nặng: ${record.Weight} kg"
+        holder.tvTermPeriod.text = record.termPeriod
+        holder.tvBMIValue.text = "BMI: ${record.bmi}"
+        holder.tvHeightValue.text = "Chiều cao: ${record.height} cm"
+        holder.tvWeightValue.text = "Cân nặng: ${record.weight} kg"
     }
 
     override fun getItemCount() = recordList.size

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.Model.FeatureModel
 import com.example.myapplication.Model.HomeItem
@@ -59,7 +60,6 @@ class PhuHuynhAdapter(
             is HomeItem.FeaturesBlock -> {
                 val fHolder = holder as FeaturesBlockViewHolder
                 fHolder.rvFeaturesChild.layoutManager = GridLayoutManager(holder.itemView.context, 3)
-
                 fHolder.rvFeaturesChild.adapter = FeatureAdapter(item.list, onFeatureClick)
             }
             is HomeItem.MomentItem -> {
@@ -74,8 +74,11 @@ class PhuHuynhAdapter(
                     mHolder.tvDateTitle.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray))
                 }
 
-                val images = currentMoment.imageResIds
-                val size = images.size
+                // Lấy danh sách ảnh từ cả URL (API) và Resource (Mock)
+                val imageUrls = currentMoment.imageUrls
+                val imageResIds = currentMoment.imageResIds
+                
+                val totalImages = imageUrls.size + imageResIds.size
 
                 mHolder.imgBigLeft.visibility = View.VISIBLE
                 mHolder.imgSmallTopRight.visibility = View.VISIBLE
@@ -83,34 +86,47 @@ class PhuHuynhAdapter(
                 mHolder.viewOverlay.visibility = View.GONE
                 mHolder.tvMoreCount.visibility = View.GONE
 
+                fun loadImage(view: ImageView, pos: Int) {
+                    if (pos < imageUrls.size) {
+                        Glide.with(holder.itemView.context).load(imageUrls[pos]).placeholder(R.drawable.logo).into(view)
+                    } else if (pos - imageUrls.size < imageResIds.size) {
+                        view.setImageResource(imageResIds[pos - imageUrls.size])
+                    }
+                }
+
                 when {
-                    size == 1 -> {
-                        mHolder.imgBigLeft.setImageResource(images[0])
+                    totalImages == 1 -> {
+                        loadImage(mHolder.imgBigLeft, 0)
                         mHolder.imgSmallTopRight.visibility = View.GONE
                         mHolder.layoutMoreImages.visibility = View.GONE
                     }
-                    size == 2 -> {
-                        mHolder.imgBigLeft.setImageResource(images[0])
-                        mHolder.imgSmallTopRight.setImageResource(images[1])
+                    totalImages == 2 -> {
+                        loadImage(mHolder.imgBigLeft, 0)
+                        loadImage(mHolder.imgSmallTopRight, 1)
                         val params = mHolder.imgSmallTopRight.layoutParams
                         params.height = mHolder.imgBigLeft.layoutParams.height
                         mHolder.imgSmallTopRight.layoutParams = params
                         mHolder.layoutMoreImages.visibility = View.GONE
                     }
-                    size >= 3 -> {
+                    totalImages >= 3 -> {
                         val params = mHolder.imgSmallTopRight.layoutParams
                         params.height = (73 * holder.itemView.resources.displayMetrics.density).toInt()
                         mHolder.imgSmallTopRight.layoutParams = params
 
-                        mHolder.imgBigLeft.setImageResource(images[0])
-                        mHolder.imgSmallTopRight.setImageResource(images[1])
-                        mHolder.imgSmallBottomRight.setImageResource(images[2])
+                        loadImage(mHolder.imgBigLeft, 0)
+                        loadImage(mHolder.imgSmallTopRight, 1)
+                        loadImage(mHolder.imgSmallBottomRight, 2)
 
-                        if (size > 3) {
+                        if (totalImages > 3) {
                             mHolder.viewOverlay.visibility = View.VISIBLE
                             mHolder.tvMoreCount.visibility = View.VISIBLE
-                            mHolder.tvMoreCount.text = "+${size - 3}"
+                            mHolder.tvMoreCount.text = "+${totalImages - 3}"
                         }
+                    }
+                    else -> {
+                        mHolder.imgBigLeft.visibility = View.GONE
+                        mHolder.imgSmallTopRight.visibility = View.GONE
+                        mHolder.layoutMoreImages.visibility = View.GONE
                     }
                 }
             }

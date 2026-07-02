@@ -62,6 +62,7 @@
                                 android:src="@drawable/avatar" /> </androidx.cardview.widget.CardView>
 
                         <TextView
+                            android:id="@+id/tvClassProfile"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -90,6 +91,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvStudentIdProfile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
@@ -166,6 +168,7 @@
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
                             <TextView
+                                android:id="@+id/tvSdtPhuHuynhProfile"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0911.xxx.123"
@@ -186,6 +189,7 @@
                             android:textColor="#667085"
                             android:textSize="14sp" />
                         <TextView
+                            android:id="@+id/tvStatusProfile"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"

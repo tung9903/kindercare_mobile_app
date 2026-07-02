@@ -1,20 +1,29 @@
 package com.example.myapplication.View.GiaoVien
 
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.Model.DataManager
+import com.example.myapplication.Model.DateHelper
 import com.example.myapplication.R
+import okhttp3.Request
+import org.json.JSONObject
+import java.util.Calendar
+import java.util.Locale
 
 class ManHinhChiTietThucDon : AppCompatActivity() {
+
+    private lateinit var layoutContainer: LinearLayout
+    private lateinit var tvTitle: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -27,80 +36,87 @@ class ManHinhChiTietThucDon : AppCompatActivity() {
             insets
         }
 
-        findViewById<TextView>(R.id.btnBack).setOnClickListener {
-            finish()
-        }
+        layoutContainer = findViewById(R.id.layoutContainer)
+        tvTitle = findViewById(R.id.tvTitle)
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
 
-        displayMenu()
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }.timeInMillis / 1000
+        
+        tvTitle.text = "Thực đơn ngày " + DateHelper.formatLongToDate(today * 1000)
+
+        // Lấy classId từ intent hoặc mặc định là 1
+        val classId = intent.getIntExtra("CLASS_ID", 1)
+        fetchClassMenu(classId, today)
     }
 
-    private fun displayMenu() {
-        val container = findViewById<LinearLayout>(R.id.layoutContainer)
-        val menu = DataManager.dailyMenu
-        
-        findViewById<TextView>(R.id.tvTitle).text = "Thực đơn ngày ${menu.date}"
+    private fun fetchClassMenu(classId: Int, date: Long) {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
 
-        menu.meals.forEach { meal ->
-            val mealCard = CardView(this).apply {
-                val params = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                params.setMargins(0, 0, 0, 32)
-                layoutParams = params
-                radius = 24f
-                cardElevation = 4f
-                setContentPadding(32, 32, 32, 32)
-            }
+        val url = "https://web-test.kindercare.app/api/v1/teacher/classes/$classId/menu?date=$date"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .get().build()
 
-            val mealLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-            }
-
-            // Meal Header
-            val headerText = TextView(this).apply {
-                text = meal.MealType
-                textSize = 18f
-                setTextColor(Color.parseColor("#0F7055"))
-                setTypeface(null, Typeface.BOLD)
-            }
-            mealLayout.addView(headerText)
-
-            // Dishes
-            meal.dishes.forEach { dish ->
-                val dishView = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(0, 24, 0, 0)
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val json = JSONObject(body)
+                        val data = json.optJSONObject("data")
+                        if (data != null) {
+                            runOnUiThread {
+                                displayMenu(data)
+                            }
+                        }
+                    }
                 }
+            } catch (e: Exception) { e.printStackTrace() }
+        }.start()
+    }
 
-                val dishName = TextView(this).apply {
-                    text = "• ${dish.DishName}"
-                    textSize = 15f
-                    setTextColor(Color.BLACK)
-                    setTypeface(null, Typeface.BOLD)
-                }
-                dishView.addView(dishName)
+    private fun displayMenu(data: JSONObject) {
+        layoutContainer.removeAllViews()
+        val meals = data.optJSONArray("meals")
+        val inflater = LayoutInflater.from(this)
 
-                val details = TextView(this).apply {
-                    text = "Chi tiết: ${dish.NutritionalDetails}"
-                    textSize = 13f
-                    setTextColor(Color.parseColor("#64748B"))
-                }
-                dishView.addView(details)
-
-                val calories = TextView(this).apply {
-                    text = "Năng lượng: ${dish.Calories ?: 0} kcal"
-                    textSize = 13f
-                    setTextColor(Color.parseColor("#059669"))
-                    setPadding(0, 8, 0, 0)
-                }
-                dishView.addView(calories)
-
-                mealLayout.addView(dishView)
+        if (meals == null || meals.length() == 0) {
+            val tvEmpty = TextView(this).apply {
+                text = "Không có thông tin thực đơn cho ngày này"
+                textAlignment = View.TEXT_ALIGNMENT_CENTER
+                setPadding(0, 50, 0, 0)
             }
+            layoutContainer.addView(tvEmpty)
+            return
+        }
 
-            mealCard.addView(mealLayout)
-            container.addView(mealCard)
+        for (i in 0 until meals.length()) {
+            val meal = meals.getJSONObject(i)
+            
+            // Header bữa ăn (Bữa trưa, Bữa xế...)
+            val headerView = inflater.inflate(R.layout.item_child_detail_box, layoutContainer, false)
+            headerView.findViewById<TextView>(R.id.tvBoxLabel).text = "BỮA ĂN"
+            headerView.findViewById<TextView>(R.id.tvBoxValue).text = meal.optString("mealType")
+            headerView.setBackgroundColor(Color.parseColor("#F1F5F9"))
+            layoutContainer.addView(headerView)
+
+            val dishes = meal.optJSONArray("dishes")
+            if (dishes != null) {
+                for (j in 0 until dishes.length()) {
+                    val dish = dishes.getJSONObject(j)
+                    val dishView = inflater.inflate(R.layout.item_dish, layoutContainer, false)
+                    
+                    dishView.findViewById<TextView>(R.id.tvDishName).text = dish.optString("dishName")
+                    dishView.findViewById<TextView>(R.id.tvDishCalories).text = dish.optInt("calories").toString() + " Kcal"
+                    dishView.findViewById<TextView>(R.id.tvDishNutrition).text = dish.optString("nutritionalDetails")
+                    
+                    layoutContainer.addView(dishView)
+                }
+            }
         }
     }
 }

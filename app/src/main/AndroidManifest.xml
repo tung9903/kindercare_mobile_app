@@ -48,6 +48,9 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".View.GiaoVien.ManHinhDanhSachHocSinhCuaLop"
+            android:exported="false" />
+        <activity
             android:name=".View.GiaoVien.ManHinhChucNangBaoCaoSuCoYTe"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -109,6 +112,10 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".View.GiaoVien.ManHinhDanThuoc"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".View.GiaoVien.ManHinhHomThuGiaoVien"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -199,8 +206,24 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".View.PhuHuynh.PickUpActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".View.PhuHuynh.ChatDetailActivity"
             android:exported="false" />
+        <activity
+            android:name=".View.PhuHuynh.AssessmentPHActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".View.PhuHuynh.AddAuthorizedPersonActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".View.PhuHuynh.DailyLessonsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

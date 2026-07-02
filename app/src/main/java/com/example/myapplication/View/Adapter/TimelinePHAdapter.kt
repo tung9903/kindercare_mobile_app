@@ -35,16 +35,16 @@ class TimelinePHAdapter(
     override fun onBindViewHolder(holder: TimelineViewHolder, position: Int) {
         val item = list[position]
         
-        holder.tvTime.text = DateHelper.formatLongToTime(item.StartTime)
-        holder.tvTitle.text = getIconForType(item.ActivityType) + " " + item.ActivityName
-        holder.tvContent.text = item.Details ?: "Hoạt động diễn ra bình thường"
+        holder.tvTime.text = DateHelper.formatLongToTime(item.startTime)
+        holder.tvTitle.text = getIconForType(item.activityType) + " " + item.activityName
+        holder.tvContent.text = item.details ?: "Hoạt động diễn ra bình thường"
         
         // Cập nhật màu sắc dựa trên loại hoạt động
-        val colorCode = getColorForType(item.ActivityType)
+        val colorCode = getColorForType(item.activityType)
         holder.viewDot.setBackgroundColor(Color.parseColor(colorCode))
         holder.tvTime.setTextColor(Color.parseColor(colorCode))
         
-        if (item.ActivityType == "study" || item.ActivityType == "play") {
+        if (item.activityType == "study" || item.activityType == "play") {
             holder.imgActivity.visibility = View.VISIBLE
             // holder.imgActivity.setImageResource(...)
         } else {
@@ -52,9 +52,9 @@ class TimelinePHAdapter(
         }
 
         // Nếu là bữa ăn, đổi màu nền thẻ cho nổi bật
-        if (item.ActivityType == "meal") {
+        if (item.activityType == "meal") {
             holder.card.setCardBackgroundColor(Color.parseColor("#FFF7ED")) // Màu cam nhạt
-        } else if (item.ActivityType == "nap") {
+        } else if (item.activityType == "nap") {
             holder.card.setCardBackgroundColor(Color.parseColor("#EEF2FF")) // Màu tím nhạt
         } else {
             holder.card.setCardBackgroundColor(Color.WHITE)

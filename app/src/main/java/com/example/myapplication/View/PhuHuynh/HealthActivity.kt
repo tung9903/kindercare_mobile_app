@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,19 +22,16 @@ import org.json.JSONObject
 
 class HealthActivity : AppCompatActivity() {
 
-    private lateinit var rvVaccine: RecyclerView
-    private lateinit var vaccineAdapter: VaccineAdapter
     private lateinit var rvHealthHistory: RecyclerView
     private lateinit var healthAdapter: HealthRecordAdapter
     private val healthRecords = mutableListOf<HealthRecord>()
     
     private lateinit var btnBack: ImageView
-    private lateinit var tvHeightValue: TextView
-    private lateinit var tvWeightValue: TextView
-    private lateinit var tvBMIValue: TextView
     private lateinit var tvAllergy: TextView
     private lateinit var tvBloodType: TextView
-    private lateinit var tvHealthTitle: TextView
+    private lateinit var tvCurrentHeight: TextView
+    private lateinit var tvCurrentWeight: TextView
+    private lateinit var tvCurrentBMI: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,24 +45,16 @@ class HealthActivity : AppCompatActivity() {
         }
 
         initViews()
-        setupVaccineRecyclerView()
         setupHealthHistoryRecyclerView()
 
-        // Lấy thông tin học sinh từ DataManager để hiển thị Dị ứng/Nhóm máu
-        val student = DataManager.studentList.firstOrNull()
-        student?.let {
-            tvAllergy.text = "• Dị ứng: ${it.Allergies ?: "Không"}"
-            tvBloodType.text = "• Nhóm máu: ${it.BloodType ?: "Chưa xác định"}"
-        }
-
-        val studentId = student?.StudentID ?: -1
-        if (studentId != -1) {
-            fetchHealthRecords(studentId)
+        // Sử dụng bé đang chọn từ DataManager
+        val selectedChild = DataManager.selectedChild
+        if (selectedChild != null) {
+            tvAllergy.text = selectedChild.optString("allergies", "Không có thông tin")
+            // tvBloodType không còn trong layout mới, nếu cần hiển thị có thể bỏ comment ở layout
+            fetchHealthRecords(selectedChild.getInt("studentId"))
         } else {
-            // Dữ liệu mẫu nếu không tìm thấy học sinh
-            healthRecords.add(HealthRecord(1, 1, "Học kỳ 1 - 2025", 110.5, 18.2, 14.9))
-            updateTopIndicators(healthRecords[0])
-            healthAdapter.notifyDataSetChanged()
+            fetchChildAndLoadHealth()
         }
 
         btnBack.setOnClickListener {
@@ -74,37 +62,49 @@ class HealthActivity : AppCompatActivity() {
         }
     }
 
-    private fun initViews() {
-        btnBack = findViewById(R.id.btnBack)
-        rvVaccine = findViewById(R.id.rvVaccine)
-        rvHealthHistory = findViewById(R.id.rvHealthHistory)
-        
-        tvAllergy = findViewById(R.id.tvAllergy)
-        tvBloodType = findViewById(R.id.tvBloodType)
-        tvHealthTitle = findViewById(R.id.tvHealthTitle)
+    private fun fetchChildAndLoadHealth() {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null)
+        if (token.isNullOrEmpty()) return
 
-        // Ánh xạ các hộp chỉ số (Indicator boxes)
-        val layoutHeight = findViewById<View>(R.id.layoutHeight)
-        val layoutWeight = findViewById<View>(R.id.layoutWeight)
-        val layoutBMI = findViewById<View>(R.id.layoutBMI)
+        val request = Request.Builder()
+            .url("https://web-test.kindercare.app/api/v1/parent/children")
+            .addHeader("Authorization", "Bearer $token")
+            .get()
+            .build()
 
-        layoutHeight.findViewById<TextView>(R.id.tvBoxLabel).text = "CHIỀU CAO"
-        layoutWeight.findViewById<TextView>(R.id.tvBoxLabel).text = "CÂN NẶNG"
-        layoutBMI.findViewById<TextView>(R.id.tvBoxLabel).text = "BMI"
-
-        tvHeightValue = layoutHeight.findViewById(R.id.tvBoxValue)
-        tvWeightValue = layoutWeight.findViewById(R.id.tvBoxValue)
-        tvBMIValue = layoutBMI.findViewById(R.id.tvBoxValue)
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val jsonResponse = JSONObject(body)
+                        val dataArray = jsonResponse.optJSONArray("data")
+                        if (dataArray != null && dataArray.length() > 0) {
+                            val child = dataArray.getJSONObject(0)
+                            val realStudentId = child.getInt("studentId")
+                            
+                            runOnUiThread {
+                                tvAllergy.text = child.optString("allergies", "Không có thông tin")
+                            }
+                            
+                            fetchHealthRecords(realStudentId)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("HEALTH_API", "Lỗi lấy ID bé: ${e.message}")
+            }
+        }.start()
     }
 
-    private fun setupVaccineRecyclerView() {
-        rvVaccine.layoutManager = LinearLayoutManager(this)
-        val vaccineList = listOf(
-            VaccineModel("Sởi – Quai bị – Rubella (MMR)", "Đã tiêm", true),
-            VaccineModel("Cúm mùa (Influenza)", "Sắp tới hẹn", false)
-        )
-        vaccineAdapter = VaccineAdapter(vaccineList)
-        rvVaccine.adapter = vaccineAdapter
+    private fun initViews() {
+        btnBack = findViewById(R.id.btnBack)
+        rvHealthHistory = findViewById(R.id.rvHealthHistory)
+        tvAllergy = findViewById(R.id.tvAllergy)
+        tvCurrentHeight = findViewById(R.id.tvCurrentHeight)
+        tvCurrentWeight = findViewById(R.id.tvCurrentWeight)
+        tvCurrentBMI = findViewById(R.id.tvCurrentBMI)
     }
 
     private fun setupHealthHistoryRecyclerView() {
@@ -116,12 +116,9 @@ class HealthActivity : AppCompatActivity() {
     private fun fetchHealthRecords(studentId: Int) {
         val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
         val token = pref.getString("token", null)
-
         if (token.isNullOrEmpty()) return
 
-        val client = DataManager.okHttpClient
         val url = "https://web-test.kindercare.app/api/v1/parent/children/$studentId/health-records"
-        
         val request = Request.Builder()
             .url(url)
             .addHeader("Authorization", "Bearer $token")
@@ -130,26 +127,26 @@ class HealthActivity : AppCompatActivity() {
 
         Thread {
             try {
-                client.newCall(request).execute().use { response ->
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
                     val body = response.body?.string()
-                    Log.d("HEALTH_API", "Kết quả trả về: $body")
+                    Log.d("HEALTH_API", "Dữ liệu trả về: $body")
 
                     if (response.isSuccessful && body != null) {
                         val jsonResponse = JSONObject(body)
                         val dataArray = jsonResponse.optJSONArray("data")
                         
                         val tempRecords = mutableListOf<HealthRecord>()
-                        if (dataArray != null) {
-                            for (i in 0 until dataArray.length()) {
-                                val obj = dataArray.getJSONObject(i)
+                        dataArray?.let {
+                            for (i in 0 until it.length()) {
+                                val obj = it.getJSONObject(i)
                                 tempRecords.add(
                                     HealthRecord(
-                                        RecordID = obj.optInt("recordId"),
-                                        StudentID = obj.optInt("studentId"),
-                                        TermPeriod = obj.optString("termPeriod", "N/A"),
-                                        Height = obj.optDouble("height", 0.0),
-                                        Weight = obj.optDouble("weight", 0.0),
-                                        BMI = obj.optDouble("bmi", 0.0)
+                                        recordId = obj.optInt("recordId"),
+                                        studentId = obj.optInt("studentId"),
+                                        termPeriod = obj.optString("termPeriod", "N/A"),
+                                        height = obj.optDouble("height", 0.0),
+                                        weight = obj.optDouble("weight", 0.0),
+                                        bmi = obj.optDouble("bmi", 0.0)
                                     )
                                 )
                             }
@@ -159,25 +156,20 @@ class HealthActivity : AppCompatActivity() {
                             healthRecords.clear()
                             healthRecords.addAll(tempRecords)
                             healthAdapter.notifyDataSetChanged()
-
-                            if (healthRecords.isNotEmpty()) {
-                                updateTopIndicators(healthRecords[0]) // Hiển thị bản ghi mới nhất lên đầu
+                            
+                            // Cập nhật chỉ số hiện tại từ bản ghi mới nhất
+                            if (tempRecords.isNotEmpty()) {
+                                val latest = tempRecords.last()
+                                tvCurrentHeight.text = "${latest.height} cm"
+                                tvCurrentWeight.text = "${latest.weight} kg"
+                                tvCurrentBMI.text = String.format("%.1f", latest.bmi)
                             }
                         }
-                    } else {
-                        Log.e("HEALTH_API", "Lỗi HTTP: ${response.code}")
                     }
                 }
             } catch (e: Exception) {
                 Log.e("HEALTH_API", "Ngoại lệ: ${e.message}")
             }
         }.start()
-    }
-
-    private fun updateTopIndicators(record: HealthRecord) {
-        tvHealthTitle.text = "Chỉ số thể trạng (${record.TermPeriod})"
-        tvHeightValue.text = "${record.Height} cm"
-        tvWeightValue.text = "${record.Weight} kg"
-        tvBMIValue.text = "${record.BMI}"
     }
 }

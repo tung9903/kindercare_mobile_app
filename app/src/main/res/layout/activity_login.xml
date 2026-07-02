@@ -1,173 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface_light"
+    android:background="@color/white"
     tools:context=".View.LoginActivity">
 
-    <ImageView
-        android:id="@+id/imgAvatar"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
-        android:layout_marginTop="60dp"
-        android:src="@drawable/logo"
-        android:contentDescription="User Avatar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Top Design Element -->
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/layoutFormCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
-        app:cardCornerRadius="24dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imgAvatar">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="24dp">
+            android:paddingBottom="40dp">
 
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ĐĂNG NHẬP"
-                android:textColor="@color/primary_green"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.1"
+            <ImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="60dp"
+                android:contentDescription="KinderCare Logo"
+                android:src="@drawable/logo"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/tvSubTitle"
-                android:layout_width="0dp"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutFormCard"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="Chào mừng phụ huynh đến với KinderCare"
-                android:textColor="@color/text_main"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="40dp"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="8dp"
+                app:layout_constraintTop_toBottomOf="@id/imgAvatar">
 
-            <TextView
-                android:id="@+id/lblPhone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Tài khoản"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/edtPhoneNumber"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvSubTitle" />
-
-            <EditText
-                android:id="@+id/edtPhoneNumber"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_rounded"
-                android:hint="SĐT hoặc Username"
-                android:inputType="text"
-                android:paddingHorizontal="16dp"
-                android:textColor="@color/text_main"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lblPhone" />
-
-            <TextView
-                android:id="@+id/lblPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Mật khẩu"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/edtPhoneNumber" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layoutEdtPassword"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                app:hintEnabled="false"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lblPassword"
-                app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@color/text_tertiary">
-
-                <EditText
-                    android:id="@+id/edtPassword"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:background="@drawable/bg_input_rounded"
-                    android:hint="••••••••"
-                    android:inputType="textPassword"
-                    android:paddingHorizontal="16dp"
-                    android:textSize="15sp"
-                    android:textColor="@color/text_main" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="28dp">
 
-            <Spinner
-                android:id="@+id/spinnerRole"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_input_rounded"
-                android:paddingHorizontal="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutEdtPassword" />
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:letterSpacing="0.1"
+                        android:text="ĐĂNG NHẬP"
+                        android:textColor="@color/primary_green"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSubTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Chào mừng bạn đến với hệ thống KinderCare"
+                        android:textColor="@color/text_main"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="40dp"
+                        android:layout_height="4dp"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_line_green" />
+
+                    <TextView
+                        android:id="@+id/lblPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="28dp"
+                        android:text="Tên đăng nhập / SĐT"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/edtPhoneNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_input_rounded"
+                        android:drawableStart="@drawable/ic_user"
+                        android:drawablePadding="12dp"
+                        android:hint="Nhập tài khoản của bạn"
+                        android:inputType="text"
+                        android:paddingHorizontal="16dp"
+                        android:textColor="@color/text_main"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/lblPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Mật khẩu"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutEdtPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:hintEnabled="false"
+                        app:passwordToggleEnabled="true"
+                        app:passwordToggleTint="@color/text_tertiary">
+
+                        <EditText
+                            android:id="@+id/edtPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="54dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:drawableStart="@drawable/ic_lock"
+                            android:drawablePadding="12dp"
+                            android:hint="••••••••"
+                            android:inputType="textPassword"
+                            android:paddingHorizontal="16dp"
+                            android:textColor="@color/text_main"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/lblRole"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Vai trò người dùng"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_input_rounded">
+
+                        <Spinner
+                            android:id="@+id/spinnerRole"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingHorizontal="12dp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_marginEnd="16dp"
+                            android:src="@drawable/ic_arrow_down"
+                            app:tint="@color/text_tertiary" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/tvForgotPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="16dp"
+                        android:padding="4dp"
+                        android:text="Quên mật khẩu?"
+                        android:textColor="@color/primary_green"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnLogin"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:layout_marginTop="28dp"
+                        android:text="ĐĂNG NHẬP"
+                        android:textAllCaps="true"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/primary_green"
+                        app:cornerRadius="16dp"
+                        app:elevation="4dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/tvForgotPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Quên mật khẩu?"
-                android:textColor="@color/primary_green"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/spinnerRole" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogin"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_marginTop="24dp"
-                android:text="Đăng nhập"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:backgroundTint="@color/primary_green"
-                app:cornerRadius="12dp"
+                android:layout_marginTop="32dp"
+                android:text="© 2024 KinderCare. All rights reserved."
+                android:textColor="@color/text_tertiary"
+                android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
+                app:layout_constraintTop_toBottomOf="@id/layoutFormCard" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

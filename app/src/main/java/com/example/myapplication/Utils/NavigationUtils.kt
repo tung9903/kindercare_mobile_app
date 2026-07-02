@@ -81,11 +81,11 @@ object NavigationUtils {
     }
 
     fun setupBottomNavigationGV(activity: Activity, activeTab: String) {
-        val btnHoatDong = activity.findViewById<LinearLayout>(R.id.btnHoatDong)
-        val btnDanhSachLop = activity.findViewById<LinearLayout>(R.id.btnDanhSachLop)
-        val btnBangDieuKhien = activity.findViewById<LinearLayout>(R.id.btnBangDieuKhien)
-        val btnDiemDanh = activity.findViewById<LinearLayout>(R.id.btnDiemDanh)
-        val btnLienLac = activity.findViewById<LinearLayout>(R.id.btnLienLac)
+        val btnHoatDong = activity.findViewById<LinearLayout>(R.id.btnHoatDong) ?: return
+        val btnDanhSachLop = activity.findViewById<LinearLayout>(R.id.btnDanhSachLop) ?: return
+        val btnBangDieuKhien = activity.findViewById<LinearLayout>(R.id.btnBangDieuKhien) ?: return
+        val btnDiemDanh = activity.findViewById<LinearLayout>(R.id.btnDiemDanh) ?: return
+        val btnLienLac = activity.findViewById<LinearLayout>(R.id.btnLienLac) ?: return
 
         fun setItemActive(imgId: Int, txtId: Int, isActive: Boolean) {
             val img = activity.findViewById<ImageView>(imgId)
@@ -105,7 +105,7 @@ object NavigationUtils {
         setItemActive(R.id.ivNavDanhSachLop, R.id.tvNavDanhSachLop, activeTab == "CLASS_LIST")
         setItemActive(R.id.ivNavBangDieuKhien, R.id.tvNavBangDieuKhien, activeTab == "DASHBOARD")
         setItemActive(R.id.ivNavDiemDanh, R.id.tvNavDiemDanh, activeTab == "ATTENDANCE")
-        setItemActive(R.id.ivNavLienLac, R.id.tvNavLienLac, activeTab == "CONTACT")
+        setItemActive(R.id.ivNavLienLac, R.id.tvNavLienLac, activeTab == "INBOX")
 
         btnHoatDong.setOnClickListener {
             if (activeTab != "ACTIVITY") {
@@ -136,8 +136,8 @@ object NavigationUtils {
             }
         }
         btnLienLac.setOnClickListener {
-            if (activeTab != "CONTACT") {
-                activity.startActivity(Intent(activity, ManHinhChatGiaoVien::class.java))
+            if (activeTab != "INBOX") {
+                activity.startActivity(Intent(activity, ManHinhHomThuGiaoVien::class.java))
                 activity.overridePendingTransition(0, 0)
                 if (activeTab != "DASHBOARD") activity.finish()
             }

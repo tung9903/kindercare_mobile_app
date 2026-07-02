@@ -21,26 +21,26 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_back"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="@color/text_main" />
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:text="Xin nghỉ học"
             android:textColor="@color/text_main"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/btnBack"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="8dp" />
+            app:layout_constraintStart_toEndOf="@+id/btnBack"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -227,30 +227,24 @@
                 app:strokeWidth="1dp">
 
                 <LinearLayout
+                    android:id="@+id/layoutDaySessions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="8dp">
+                    android:padding="16dp">
 
-                    <CheckBox
-                        android:id="@+id/cbMorning"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Buổi sáng"
-                        android:textColor="@color/text_main"
-                        android:checked="true"
-                        app:buttonTint="@color/primary_green" />
+                        android:text="Chọn buổi nghỉ chi tiết"
+                        android:textColor="@color/text_tertiary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="12dp" />
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border_color" android:layout_marginHorizontal="12dp" />
+                    <!-- Các ngày nghỉ sẽ được thêm vào đây programmatically -->
 
-                    <CheckBox
-                        android:id="@+id/cbAfternoon"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Buổi chiều"
-                        android:textColor="@color/text_main"
-                        android:checked="true"
-                        app:buttonTint="@color/primary_green" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -351,6 +345,31 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Evidence Preview -->
+            <RelativeLayout
+                android:id="@+id/layoutEvidencePreview"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/imgEvidencePreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_input_rounded" />
+
+                <ImageView
+                    android:id="@+id/btnRemoveEvidence"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="@color/error" />
+            </RelativeLayout>
 
             <!-- Leave History Section -->
             <TextView

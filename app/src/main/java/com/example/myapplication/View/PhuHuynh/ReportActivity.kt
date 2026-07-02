@@ -1,7 +1,7 @@
 package com.example.myapplication.View.PhuHuynh
 
 import android.os.Bundle
-import android.widget.ImageView
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,76 +16,32 @@ class ReportActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var reportAdapter: ReportAdapter
+    private val reportList = mutableListOf<ReportModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_report)
 
-        // Ánh xạ các View và sử dụng dấu ? (safe call) phòng trường hợp ID sai lệch
-        val mainView = findViewById<android.view.View>(R.id.main)
-        val layoutHeader = findViewById<android.view.View>(R.id.viewHeaderBg)
-        val btnBack = findViewById<ImageView>(R.id.btnBack)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
+
         recyclerView = findViewById(R.id.recyclerViewReports)
-
-        // Xử lý Edge-to-Edge an toàn (Thêm dấu ? sau layoutHeader và recyclerView)
-        mainView?.let { view ->
-            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-                // Kiểm tra nếu layoutHeader khác null thì mới set padding
-                layoutHeader?.let { header ->
-                    header.setPadding(
-                        header.paddingLeft,
-                        systemBars.top,
-                        header.paddingRight,
-                        header.paddingBottom
-                    )
-                }
-
-                // Kiểm tra nếu recyclerView khác null thì mới set padding
-                recyclerView?.let { list ->
-                    list.setPadding(
-                        list.paddingLeft,
-                        list.paddingTop,
-                        list.paddingRight,
-                        systemBars.bottom
-                    )
-                }
-
-                insets
-            }
-        }
-
-        // Sự kiện nút quay lại
-        btnBack?.setOnClickListener {
-            finish()
-        }
-
-        // Khởi tạo hiển thị cho danh sách
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Dữ liệu mẫu hiển thị
-        val reportList = listOf(
-            ReportModel(
-                "Xác nhận dặn thuốc",
-                "Nhà trường đã tiếp nhận thông tin dặn thuốc cho bé Ngọc Châu từ phụ huynh lúc 07:45 AM.",
-                "Hôm qua"
-            ),
-            ReportModel(
-                "Xác nhận dặn thuốc",
-                "Nhà trường đã tiếp nhận thông tin dặn thuốc cho bé Ngọc Châu từ phụ huynh lúc 07:45 AM.",
-                "Hôm qua"
-            ),
-            ReportModel(
-                "Xác nhận dặn thuốc",
-                "Nhà trường đã tiếp nhận thông tin dặn thuốc cho bé Ngọc Châu từ phụ huynh lúc 07:45 AM.",
-                "Hôm qua"
-            )
-        )
-
-        // Gán adapter vào list
         reportAdapter = ReportAdapter(reportList)
+        recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = reportAdapter
+
+        loadMockData()
+    }
+
+    private fun loadMockData() {
+        reportList.add(ReportModel(1, "Báo cáo tháng 5", "18/05/2026", "Đã hoàn thành"))
+        reportList.add(ReportModel(2, "Sự cố y tế", "15/05/2026", "Đang xử lý"))
+        reportAdapter.notifyDataSetChanged()
     }
 }

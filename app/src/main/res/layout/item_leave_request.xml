@@ -1,145 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_item_card"
-    android:orientation="vertical"
-    android:padding="14dp"
-    android:layout_marginBottom="12dp"
-    android:elevation="1dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="80dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:orientation="horizontal"
+            android:padding="16dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img_student_avatar"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:scaleType="centerCrop"
-                android:src="@android:drawable/sym_def_app_icon"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.LargeComponent" />
+                android:src="@drawable/avatar"
+                app:shapeAppearanceOverlay="@style/CircleImageStyle"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txt_student_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#1E293B"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    tools:text="Vũ Trường Giang" />
+
+                <TextView
+                    android:id="@+id/txt_parent_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="#64748B"
+                    android:textSize="13sp"
+                    tools:text="Phụ huynh: Nguyễn Văn A" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/txt_parent_name"
+                android:id="@+id/txt_status_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Mẹ Trang"
-                android:textColor="#101828"
-                android:textSize="13sp"
+                android:background="@drawable/bg_badge_gray"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textColor="#475467"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:gravity="center" />
+                tools:text="ĐANG CHỜ" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/txt_student_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Lê Bích Liên"
-                android:textColor="#101828"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/txt_class_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Lớp Thỏ Ngọc 1"
-                android:textColor="#475467"
-                android:textSize="13sp" />
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:id="@+id/txt_leave_duration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Nghỉ: 26-28/10/2023 (1 ngày)"
-                android:textColor="#101828"
-                android:textSize="13sp" />
+                android:textColor="#1E293B"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="29/06/2026 - 05/07/2026" />
 
             <TextView
                 android:id="@+id/txt_leave_reason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Lý do: Sốt siêu vi"
-                android:textColor="#101828"
-                android:textSize="13sp" />
+                android:layout_marginTop="4dp"
+                android:textColor="#475569"
+                android:textSize="14sp"
+                tools:text="Bé bị ốm, gia đình xin nghỉ ạ." />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/txt_parent_notes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="8dp"
+                android:background="#F8FAFC"
+                android:padding="10dp"
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                android:visibility="gone"
+                tools:text="Ghi chú: Nhờ cô theo dõi bé..."
+                tools:visibility="visible" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Trạng thái: "
-                    android:textColor="#475467"
-                    android:textSize="13sp" />
+            <TextView
+                android:id="@+id/txt_refund_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="✓ Được hoàn tiền ăn"
+                android:textColor="#059669"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/txt_status_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Chờ duyệt"
-                    android:textColor="#E65100"
-                    android:textStyle="bold"
-                    android:textSize="13sp" />
-            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/layout_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F9FAFB"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reject"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:text="Từ chối"
+                android:textAllCaps="false"
+                android:textColor="@color/error"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/error" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_approve"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:text="Duyệt đơn"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/success"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="2">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_approve"
-            android:layout_width="0dp"
-            android:layout_height="38dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:background="@drawable/bg_btn_approve_solid"
-            android:text="✓  DUYỆT ĐƠN"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_reject"
-            android:layout_width="0dp"
-            android:layout_height="38dp"
-            android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_btn_reject_solid"
-            android:text="✕  TỪ CHỐI"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

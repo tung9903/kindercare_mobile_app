@@ -13,7 +13,6 @@
         android:id="@+id/headerBar"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_marginTop="18dp"
         android:background="@color/white"
         android:paddingHorizontal="20dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -57,14 +56,14 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:contentDescription="@string/desc_profile"
-            android:src="@drawable/logo"
-            app:shapeAppearanceOverlay="@style/CircleImage"
             android:scaleType="centerCrop"
-            app:strokeColor="@color/border_color"
-            app:strokeWidth="1dp"
+            android:src="@drawable/logo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/CircleImage"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView

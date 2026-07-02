@@ -4,11 +4,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -24,7 +22,10 @@ import com.example.myapplication.Model.DataManager
 import com.example.myapplication.R
 import com.example.myapplication.Utils.NavigationUtils
 import com.example.myapplication.View.Adapter.ActivityPostAdapter
-import java.util.UUID
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class ManHinhHoatDong : AppCompatActivity() {
 
@@ -37,9 +38,7 @@ class ManHinhHoatDong : AppCompatActivity() {
     private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             selectedMediaUri = uri
-            Toast.makeText(this, "Đã chọn 1 tệp phương tiện", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "Chưa chọn tệp nào", Toast.LENGTH_SHORT).show()
+            adapter.updateMedia(uri)
         }
     }
 
@@ -57,20 +56,31 @@ class ManHinhHoatDong : AppCompatActivity() {
 
         setupRecyclerView()
         setupBottomNavigation()
-        setupPostAction()
-        setupNotificationNavigation()
         setupFilters()
         setupSearch()
-        setupAvatarNavigation()
-        setupMediaPickAction()
 
-        loadPosts()
+        fetchPosts()
     }
 
     private fun setupRecyclerView() {
         rvPosts = findViewById(R.id.rvActivityPosts)
         adapter = ActivityPostAdapter(
             displayList,
+            selectedMediaUri,
+            onPostClick = { content, uri ->
+                if (content.isNotEmpty()) {
+                    submitPost(content, uri)
+                } else {
+                    Toast.makeText(this, "Vui lòng nhập nội dung", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onPickMedia = {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onRemoveMedia = {
+                selectedMediaUri = null
+                adapter.updateMedia(null)
+            },
             onImageClick = { },
             onCommentClick = { }
         )
@@ -78,29 +88,94 @@ class ManHinhHoatDong : AppCompatActivity() {
         rvPosts.adapter = adapter
     }
 
-    private fun loadPosts() {
-        displayList.clear()
-        val filtered = if (currentFilterType == "All") {
-            DataManager.activityPosts
-        } else {
-            DataManager.activityPosts.filter { it.postType == currentFilterType }
+    private fun fetchPosts() {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
+
+        val request = Request.Builder()
+            .url("https://web-test.kindercare.app/api/v1/teacher/posts")
+            .addHeader("Authorization", "Bearer $token")
+            .get()
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val json = JSONObject(body)
+                        val dataArray = json.optJSONArray("data")
+                        val temp = mutableListOf<ActivityPost>()
+                        dataArray?.let {
+                            for (i in 0 until it.length()) {
+                                val obj = it.getJSONObject(i)
+                                temp.add(ActivityPost(
+                                    id = obj.optString("postId"),
+                                    teacherName = obj.optString("teacherName", "Giáo viên"),
+                                    role = obj.optString("role", "Chuyên môn"),
+                                    dateText = obj.optString("postedAt", "Vừa xong"),
+                                    contentTitle = obj.optString("content"),
+                                    imageUri = if (obj.isNull("mediaUrl")) null else obj.optString("mediaUrl"),
+                                    avatarResId = R.drawable.avatar
+                                ))
+                            }
+                        }
+                        runOnUiThread {
+                            displayList.clear()
+                            displayList.addAll(temp.reversed())
+                            adapter.updatePosts(displayList)
+                        }
+                    }
+                    return@use
+                }
+            } catch (e: Exception) { Log.e("FETCH_POSTS", e.message ?: "") }
+        }.start()
+    }
+
+    private fun submitPost(content: String, uri: Uri?) {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
+
+        Toast.makeText(this, "Đang tải bài viết lên...", Toast.LENGTH_SHORT).show()
+        
+        val json = JSONObject().apply {
+            put("content", content)
+            put("mediaUrl", uri?.toString() ?: "")
+            put("classId", 1) 
         }
-        displayList.addAll(filtered.reversed())
-        adapter.notifyDataSetChanged()
+
+        val body = json.toString().toRequestBody("application/json".toMediaType())
+        val request = Request.Builder()
+            .url("https://web-test.kindercare.app/api/v1/teacher/posts")
+            .addHeader("Authorization", "Bearer $token")
+            .post(body)
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    runOnUiThread {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this, "Đã đăng bài viết thành công!", Toast.LENGTH_SHORT).show()
+                            selectedMediaUri = null
+                            adapter.updateMedia(null)
+                            fetchPosts()
+                        }
+                    }
+                    return@use
+                }
+            } catch (e: Exception) { }
+        }.start()
     }
 
     private fun setupFilters() {
         val chipAll = findViewById<TextView>(R.id.chipAll)
-        val chipMeals = findViewById<TextView>(R.id.chipMeals)
-        val chipActivities = findViewById<TextView>(R.id.chipActivities)
-        val chipStatus = findViewById<TextView>(R.id.chipStatus)
-
-        val chips = listOf(chipAll, chipMeals, chipActivities, chipStatus)
-
+        val chips = listOf(chipAll, findViewById(R.id.chipMeals), findViewById(R.id.chipActivities), findViewById(R.id.chipStatus))
+        
         chipAll.setOnClickListener { updateFilter("All", chips, it) }
-        chipMeals.setOnClickListener { updateFilter("Meal", chips, it) }
-        chipActivities.setOnClickListener { updateFilter("Activity", chips, it) }
-        chipStatus.setOnClickListener { updateFilter("Status", chips, it) }
+        findViewById<View>(R.id.chipMeals).setOnClickListener { updateFilter("Meal", chips, it) }
+        findViewById<View>(R.id.chipActivities).setOnClickListener { updateFilter("Activity", chips, it) }
+        findViewById<View>(R.id.chipStatus).setOnClickListener { updateFilter("Status", chips, it) }
     }
 
     private fun updateFilter(type: String, allChips: List<TextView>, activeChip: View) {
@@ -111,64 +186,15 @@ class ManHinhHoatDong : AppCompatActivity() {
         }
         activeChip.setBackgroundResource(R.drawable.bg_chip_selected)
         (activeChip as TextView).setTextColor(Color.WHITE)
-        loadPosts()
+        fetchPosts()
     }
 
     private fun setupSearch() {
-        val etSearch = findViewById<EditText>(R.id.etSearchPost)
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                val query = s.toString().lowercase()
-                val searchResult = DataManager.activityPosts.filter { 
-                    it.contentTitle.lowercase().contains(query) 
-                }
-                displayList.clear()
-                displayList.addAll(searchResult.reversed())
-                adapter.notifyDataSetChanged()
-            }
+        findViewById<EditText>(R.id.etSearchPost).addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) { }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-    }
-
-    private fun setupPostAction() {
-        findViewById<TextView>(R.id.btnPost).setOnClickListener {
-            val content = findViewById<EditText>(R.id.etPostContent).text.toString()
-            if (content.isNotEmpty()) {
-                val newPost = ActivityPost(
-                    id = UUID.randomUUID().toString(),
-                    teacherName = DataManager.currentTeacher.FullName,
-                    role = DataManager.currentTeacher.ProfessionalRank ?: "Giáo viên",
-                    dateText = "Vừa xong",
-                    contentTitle = content,
-                    avatarResId = DataManager.currentTeacher.avatarResId,
-                    postType = "Activity"
-                )
-                DataManager.activityPosts.add(newPost)
-                findViewById<EditText>(R.id.etPostContent).text.clear()
-                selectedMediaUri = null
-                loadPosts()
-                Toast.makeText(this, "Đã đăng bài viết thành công!", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun setupMediaPickAction() {
-        findViewById<LinearLayout>(R.id.btnPickMedia).setOnClickListener {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
-        }
-    }
-
-    private fun setupAvatarNavigation() {
-        findViewById<View>(R.id.imgAvatar).setOnClickListener {
-            startActivity(Intent(this, ManHinhThongTinTaiKhoanCaNhan::class.java))
-        }
-    }
-
-    private fun setupNotificationNavigation() {
-        findViewById<View>(R.id.layoutNotification).setOnClickListener {
-            startActivity(Intent(this, ManHinhChucNangThongBao::class.java))
-        }
     }
 
     private fun setupBottomNavigation() {

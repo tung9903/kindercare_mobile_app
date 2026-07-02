@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -17,9 +17,15 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.View.Adapter.DiemDanhAdapter
-import com.example.myapplication.Model.DataManager
+import com.example.myapplication.Model.*
 import com.example.myapplication.R
 import com.example.myapplication.Utils.NavigationUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,11 +38,12 @@ class ManHinhDiemDanh : AppCompatActivity() {
     private lateinit var tvTotal: TextView
     private lateinit var tvAbsentDetail: TextView
     private lateinit var tvAttendanceDate: TextView
-    private lateinit var btnSaveAttendance: LinearLayout
+    private lateinit var btnSaveAttendance: View
 
     private var selectedDate = Calendar.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val todayString = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+    
+    private val studentList = mutableListOf<TeacherStudentResponse>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +65,9 @@ class ManHinhDiemDanh : AppCompatActivity() {
         setupSaveButton()
         setupAvatarNavigation()
         setupDatePicker()
+        setupQRScanner()
         
-        // Initial load
-        loadAttendanceData(todayString)
+        refreshData()
     }
 
     private fun initViews() {
@@ -73,6 +80,77 @@ class ManHinhDiemDanh : AppCompatActivity() {
         btnSaveAttendance = findViewById(R.id.btnSaveAttendance)
     }
 
+    private fun setupQRScanner() {
+        val btnScanQR = findViewById<FloatingActionButton>(R.id.btnScanQR)
+        val scanner = GmsBarcodeScanning.getClient(this)
+
+        btnScanQR.setOnClickListener {
+            scanner.startScan()
+                .addOnSuccessListener { barcode ->
+                    val rawValue = barcode.rawValue ?: ""
+                    handleScannedData(rawValue)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("QR_SCAN", "Lỗi quét mã: ${e.message}")
+                    Toast.makeText(this, "Không thể quét mã QR", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
+    private fun handleScannedData(qrToken: String) {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null)
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Phiên đăng nhập hết hạn", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val json = JSONObject().apply {
+            put("qrToken", qrToken)
+        }
+        val body = json.toString().toRequestBody("application/json".toMediaType())
+        val url = "https://web-test.kindercare.app/api/v1/teacher/attendance/scan"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .post(body)
+            .build()
+
+        runOnUiThread {
+            Toast.makeText(this, "Đang xử lý mã QR...", Toast.LENGTH_SHORT).show()
+        }
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val resBody = response.body?.string()
+                    runOnUiThread {
+                        when (response.code) {
+                            200 -> {
+                                val msg = JSONObject(resBody ?: "{}").optString("message", "Điểm danh thành công")
+                                Toast.makeText(this, "✅ $msg", Toast.LENGTH_LONG).show()
+                                refreshData() // Tải lại danh sách để cập nhật UI
+                            }
+                            400 -> Toast.makeText(this, "❌ Mã QR không hợp lệ hoặc hết hạn", Toast.LENGTH_LONG).show()
+                            409 -> {
+                                val msg = JSONObject(resBody ?: "{}").optString("message", "Mã đã được sử dụng hoặc bé đã điểm danh")
+                                Toast.makeText(this, "⚠️ $msg", Toast.LENGTH_LONG).show()
+                            }
+                            else -> {
+                                val msg = JSONObject(resBody ?: "{}").optString("message", "Lỗi máy chủ: ${response.code}")
+                                Toast.makeText(this, "❌ $msg", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this, "Lỗi kết nối: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
     private fun setupAvatarNavigation() {
         findViewById<View>(R.id.imgAvatar).setOnClickListener {
             startActivity(Intent(this, ManHinhThongTinTaiKhoanCaNhan::class.java))
@@ -80,78 +158,144 @@ class ManHinhDiemDanh : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = DiemDanhAdapter(mutableListOf()) {
-            updateStats()
+        adapter = DiemDanhAdapter(studentList) {
+            updateStatsSummary()
         }
         rvDiemDanh.layoutManager = LinearLayoutManager(this)
         rvDiemDanh.adapter = adapter
     }
 
-    private fun loadAttendanceData(dateStr: String) {
-        val isToday = dateStr == todayString
-        tvAttendanceDate.text = if (isToday) "Hôm nay, $dateStr" else dateStr
-
-        val historyData = DataManager.getAttendanceForDate(dateStr)
-        
-        if (historyData != null) {
-            adapter.updateData(historyData)
-            adapter.isReadOnly = true
-            btnSaveAttendance.visibility = View.GONE
-        } else if (isToday) {
-            DataManager.initializeDailyAttendance()
-            adapter.updateData(DataManager.studentList)
-            
-            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-            if (hour >= 9) {
-                adapter.isReadOnly = true
-                btnSaveAttendance.visibility = View.GONE
-            } else {
-                adapter.isReadOnly = false
-                btnSaveAttendance.visibility = View.VISIBLE
-            }
-        } else {
-            // Không có dữ liệu cho ngày cũ
-            adapter.updateData(emptyList())
-            adapter.isReadOnly = true
-            btnSaveAttendance.visibility = View.GONE
-            Toast.makeText(this, "Không có dữ liệu điểm danh cho ngày này", Toast.LENGTH_SHORT).show()
+    private fun refreshData() {
+        val cal = Calendar.getInstance().apply {
+            timeInMillis = selectedDate.timeInMillis
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
-        updateStats()
+        val startOfDayTimestamp = cal.timeInMillis / 1000
+        loadAttendanceData(1, startOfDayTimestamp)
     }
 
-    private fun updateStats() {
-        val dateStr = dateFormat.format(selectedDate.time)
-        val data = if (dateStr == todayString) DataManager.studentList else DataManager.getAttendanceForDate(dateStr) ?: emptyList()
+    private fun loadAttendanceData(classId: Int, date: Long) {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null)
+        if (token.isNullOrEmpty()) return
 
-        val stats = DataManager.getAttendanceStats(data)
+        tvAttendanceDate.text = dateFormat.format(date * 1000L)
 
-        tvPresent.text = String.format(Locale.getDefault(), "%02d", stats.present)
-        tvAbsent.text = String.format(Locale.getDefault(), "%02d", stats.absent)
-        tvTotal.text = String.format(Locale.getDefault(), "%02d", stats.total)
-        tvAbsentDetail.text = "${stats.excused} Có phép | ${stats.unexcused} Không phép"
+        val url = "https://web-test.kindercare.app/api/v1/teacher/classes/$classId/students?date=$date"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .get()
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val jsonResponse = JSONObject(body)
+                        val dataArray = jsonResponse.optJSONArray("data")
+                        
+                        val tempStudents = mutableListOf<TeacherStudentResponse>()
+                        dataArray?.let {
+                            for (i in 0 until it.length()) {
+                                tempStudents.add(parseStudent(it.getJSONObject(i)))
+                            }
+                        }
+
+                        runOnUiThread {
+                            studentList.clear()
+                            studentList.addAll(tempStudents)
+                            
+                            // Áp dụng logic trạng thái mặc định
+                            applyLeaveLogicToUnmarkedStudents()
+                            
+                            adapter.updateData(studentList)
+                            updateStatsSummary()
+                            
+                            val today = Calendar.getInstance()
+                            val isToday = today.get(Calendar.DAY_OF_YEAR) == selectedDate.get(Calendar.DAY_OF_YEAR) &&
+                                          today.get(Calendar.YEAR) == selectedDate.get(Calendar.YEAR)
+                            
+                            adapter.isReadOnly = !isToday
+                            findViewById<View>(R.id.btnScanQR).visibility = if (isToday) View.VISIBLE else View.GONE
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ATTENDANCE_LIST_API", "Lỗi: ${e.message}")
+            }
+        }.start()
+    }
+
+    private fun applyLeaveLogicToUnmarkedStudents() {
+        studentList.forEach { student ->
+            // LOGIC MỚI: 
+            // 1. Nếu có đơn nghỉ đã DUYỆT cho ngày này
+            if (student.leaveRequest != null && student.leaveRequest.status == "Approved") {
+                // 2. VÀ bé CHƯA có giờ vào lớp thực tế (chưa quét QR/chưa nhấn tay)
+                if (student.checkInTime == null) {
+                    student.status = "Absent" // ÉP BUỘC trạng thái là Nghỉ
+                }
+                // Nếu checkInTime != null, nghĩa là bé đã đến trường thực tế -> Giữ "Present"
+            }
+        }
+    }
+
+    private fun parseStudent(obj: JSONObject): TeacherStudentResponse {
+        val leaveReqJson = obj.optJSONObject("leaveRequest")
+        val leaveReq = if (leaveReqJson != null) {
+            LeaveRequestShort(
+                requestId = leaveReqJson.optInt("requestId"),
+                status = leaveReqJson.optString("status"),
+                reason = leaveReqJson.optString("reason")
+            )
+        } else null
+
+        return TeacherStudentResponse(
+            studentId = obj.optInt("studentId"),
+            fullName = obj.optString("fullName", "Học sinh"),
+            avatarUrl = obj.optString("avatarUrl"),
+            status = if (obj.isNull("status")) null else obj.optString("status"),
+            checkInTime = if (obj.isNull("checkInTime")) null else obj.optLong("checkInTime"),
+            checkOutTime = if (obj.isNull("checkOutTime")) null else obj.optLong("checkOutTime"),
+            pickedUpBy = if (obj.isNull("pickedUpBy")) null else obj.optString("pickedUpBy"),
+            healthNote = obj.optString("healthNote"),
+            leaveRequest = leaveReq
+        )
+    }
+
+    private fun updateStatsSummary() {
+        val total = studentList.size
+        val present = studentList.count { it.status == "Present" }
+        val absent = studentList.count { it.status == "Absent" }
+        val excused = studentList.count { it.status == "Absent" && it.leaveRequest?.status == "Approved" }
+        val unexcused = absent - excused
+
+        tvPresent.text = String.format(Locale.getDefault(), "%02d", present)
+        tvAbsent.text = String.format(Locale.getDefault(), "%02d", absent)
+        tvTotal.text = String.format(Locale.getDefault(), "%02d", total)
+        tvAbsentDetail.text = "$excused Có phép | $unexcused Không phép"
     }
 
     private fun setupDatePicker() {
         findViewById<View>(R.id.btnSelectDate).setOnClickListener {
-            val datePickerDialog = DatePickerDialog(
-                this,
-                { _, year, month, dayOfMonth ->
-                    selectedDate.set(year, month, dayOfMonth)
-                    val dateStr = dateFormat.format(selectedDate.time)
-                    loadAttendanceData(dateStr)
+            DatePickerDialog(this, { _, y, m, d ->
+                    selectedDate.set(y, m, d)
+                    refreshData()
                 },
                 selectedDate.get(Calendar.YEAR),
                 selectedDate.get(Calendar.MONTH),
                 selectedDate.get(Calendar.DAY_OF_MONTH)
-            )
-            datePickerDialog.datePicker.maxDate = System.currentTimeMillis()
-            datePickerDialog.show()
+            ).apply {
+                datePicker.maxDate = System.currentTimeMillis()
+                show()
+            }
         }
     }
 
     private fun setupSearch() {
-        val etSearch = findViewById<EditText>(R.id.etSearchAttendance)
-        etSearch.addTextChangedListener(object : TextWatcher {
+        findViewById<EditText>(R.id.etSearchAttendance).addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 adapter.filter(s.toString())
@@ -167,31 +311,34 @@ class ManHinhDiemDanh : AppCompatActivity() {
     }
 
     private fun setupSaveButton() {
-        btnSaveAttendance.setOnClickListener {
-            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-            if (hour >= 9) {
-                Toast.makeText(this, "Đã quá 09:00, không thể thay đổi điểm danh", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val data = DataManager.studentList
-            val total = data.size
-            val present = data.count { it.attendanceStatus == "Hiện diện" }
-            val absent = data.count { it.attendanceStatus == "Nghỉ" }
-            val pending = data.count { it.attendanceStatus == "Chưa có mặt" }
-
+        findViewById<View>(R.id.btnSaveAttendance).setOnClickListener {
+            val pending = studentList.count { it.status == null }
             if (pending > 0) {
-                Toast.makeText(this, "Vui lòng hoàn tất điểm danh cho $pending bé còn lại", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Vui lòng hoàn tất điểm danh cho $pending bé", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Lưu vào lịch sử trước khi chuyển màn hình (giả lập)
-            DataManager.saveAttendanceForDate(todayString, data)
+            val attendanceItems = studentList.map { 
+                AttendanceDataItem(
+                    studentId = it.studentId,
+                    status = it.status ?: "Absent",
+                    checkInTime = it.checkInTime ?: (System.currentTimeMillis() / 1000),
+                    checkOutTime = it.checkOutTime,
+                    pickedUpBy = it.pickedUpBy
+                )
+            }
+            
+            DataManager.currentAttendanceData = QuickAttendanceRequest(
+                classId = 1,
+                date = selectedDate.timeInMillis / 1000,
+                attendanceData = attendanceItems
+            )
 
-            val intent = Intent(this, ManHinhXacNhanLuuDiemDanhVaGuiThongBao::class.java)
-            intent.putExtra("PRESENT_COUNT", present)
-            intent.putExtra("ABSENT_COUNT", absent)
-            intent.putExtra("TOTAL_COUNT", total)
+            val intent = Intent(this, ManHinhXacNhanLuuDiemDanhVaGuiThongBao::class.java).apply {
+                putExtra("PRESENT_COUNT", studentList.count { it.status == "Present" })
+                putExtra("ABSENT_COUNT", studentList.count { it.status == "Absent" })
+                putExtra("TOTAL_COUNT", studentList.size)
+            }
             startActivity(intent)
         }
     }

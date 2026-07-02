@@ -5,146 +5,145 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_light"
     tools:context=".View.GiaoVien.ManHinhDiemDanh">
-    <TextView
-        android:id="@+id/tvLogoTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="18dp"
-        android:text="KinderCare"
-        android:textColor="#005A36"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    <LinearLayout
-        android:id="@+id/layoutActionIcons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@+id/tvLogoTitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tvLogoTitle">
 
-        <ImageView
-            android:id="@+id/imgCalendar"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="Calendar Icon"
-            android:src="@drawable/ic_calendar" />
-
-        <FrameLayout
-            android:id="@+id/layoutNotification"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp">
-
-            <ImageView
-                android:layout_width="36dp"
-                android:layout_height="28dp"
-                android:contentDescription="Notification Icon"
-                android:src="@drawable/ic_notification" />
-
-            <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_gravity="top|end"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="2dp"
-                android:background="@drawable/bg_red_thongbao" />
-        </FrameLayout>
-
-        <ImageView
-            android:id="@+id/imgAvatar"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="User Avatar"
-            android:src="@drawable/avatar" />
-
-
-    </LinearLayout>
-
-
-    <EditText
-        android:id="@+id/etSearchAttendance"
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="68dp"
-        android:background="@drawable/bg_search_gray"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:hint="tìm kiếm"
-        android:inputType="text"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
         android:paddingHorizontal="16dp"
-        android:textColorHint="#666666"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/layoutAttendanceCard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_attendance_card"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintStart_toStartOf="@+id/etSearchAttendance"
-        app:layout_constraintTop_toBottomOf="@id/etSearchAttendance">
+        android:paddingVertical="12dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/tvLogoTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Điểm danh hằng ngày - Lớp Mầm Non 1"
-            android:textColor="#000000"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:text="Điểm danh"
+            android:textColor="@color/text_main"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <FrameLayout
+                android:id="@+id/layoutNotification"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_input_rounded">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_notification"
+                    app:tint="@color/text_main" />
+                <View
+                    android:id="@+id/viewNotiBadge"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_badge_red"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avatar"
+                app:shapeAppearanceOverlay="@style/CircleImageStyle"
+                app:strokeColor="@color/border_color"
+                app:strokeWidth="1dp" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Top Summary & Controls -->
+    <LinearLayout
+        android:id="@+id/layoutTopControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader">
+
+        <!-- Search Bar -->
+        <EditText
+            android:id="@+id/etSearchAttendance"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/bg_search_gray"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="10dp"
+            android:hint="Tìm tên bé..."
+            android:inputType="text"
+            android:paddingHorizontal="16dp"
+            android:textSize="14sp" />
+
+        <!-- Date Picker Bar -->
         <LinearLayout
             android:id="@+id/btnSelectDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_date_picker"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_badge_light_green"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@drawable/ic_calendar"
-                app:tint="#0F623D" />
+                app:tint="@color/primary_green" />
 
             <TextView
                 android:id="@+id/tvAttendanceDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                android:text="Hôm nay, 18/05/2026"
-                android:textColor="#333333"
-                android:textSize="12sp" />
+                android:layout_marginStart="6dp"
+                android:text="18/05/2026"
+                android:textColor="@color/primary_green"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
             <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginStart="4dp"
                 android:src="@android:drawable/arrow_down_float"
-                app:tint="#333333" />
+                app:tint="@color/primary_green" />
         </LinearLayout>
 
+        <!-- Stats Overview Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:weightSum="3">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -152,23 +151,20 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hiện diện"
-                    android:textColor="#00A65A"
-                    android:textSize="14sp"
+                    android:text="HIỆN DIỆN"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tvPresentCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:text="00"
-                    android:textColor="#00A65A"
-                    android:textSize="32sp"
+                    android:textColor="@color/success"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -178,36 +174,21 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Vắng"
-                    android:textColor="#F39C12"
-                    android:textSize="14sp"
+                    android:text="VẮNG"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tvAbsentCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:text="00"
-                    android:textColor="#F39C12"
-                    android:textSize="32sp"
+                    android:textColor="@color/error"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvAbsentDetail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/bg_absent_detail"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:text="2 Có phép | 0 Không phép"
-                    android:textColor="#555555"
-                    android:textSize="9sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -216,64 +197,80 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sĩ số lớp"
-                    android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:text="SĨ SỐ"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/tvTotalCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:text="00"
-                    android:textColor="#000000"
-                    android:textSize="32sp"
+                    android:textColor="@color/text_main"
+                    android:textSize="22sp"
                     android:textStyle="bold" />
             </LinearLayout>
-
         </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/btnSaveAttendance"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/bg_btn_green"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutAttendanceCard">
-
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/checkbox_on_background"
-            app:tint="#FFFFFF" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvAbsentDetail"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Lưu điểm danh &amp; Gửi thông báo"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="0 Có phép | 0 Không phép"
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/revDiemDanh"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayoutNavGV"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSaveAttendance" />
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        app:layout_constraintBottom_toTopOf="@+id/layoutBottomAction"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTopControls" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layoutBottomAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutNavGV">
+
+        <LinearLayout
+            android:id="@+id/btnSaveAttendance"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_margin="16dp"
+            android:background="@drawable/bg_btn_submit_solid"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/checkbox_on_background"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Hoàn tất &amp; Gửi thông báo"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Teacher Navigation -->
     <include
@@ -281,8 +278,18 @@
         layout="@layout/layout_bottom_navigation_gv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnScanQR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_edit"
+        app:backgroundTint="@color/primary_green"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottomAction"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:tint="@color/white"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

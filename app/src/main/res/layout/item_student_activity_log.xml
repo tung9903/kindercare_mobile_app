@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgStudent"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/avatar"
+                app:shapeAppearanceOverlay="@style/CircleImageStyle" />
+
+            <TextView
+                android:id="@+id/tvStudentName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="Nguyễn Minh Khang"
+                android:textColor="@color/text_main"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Status Grid 5 Items from DB -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:columnCount="3"
+            android:alignmentMode="alignMargins">
+
+            <LinearLayout style="@style/ActivityStatusItemStyle">
+                <TextView style="@style/ActivityStatusLabelStyle" android:text="SÁNG" />
+                <TextView android:id="@+id/tvBreakfast" style="@style/ActivityStatusValueStyle" android:text="Ăn hết" />
+            </LinearLayout>
+
+            <LinearLayout style="@style/ActivityStatusItemStyle">
+                <TextView style="@style/ActivityStatusLabelStyle" android:text="TRƯA" />
+                <TextView android:id="@+id/tvLunch" style="@style/ActivityStatusValueStyle" android:text="Ăn hết" />
+            </LinearLayout>
+
+            <LinearLayout style="@style/ActivityStatusItemStyle">
+                <TextView style="@style/ActivityStatusLabelStyle" android:text="XẾ" />
+                <TextView android:id="@+id/tvSnack" style="@style/ActivityStatusValueStyle" android:text="Ăn hết" />
+            </LinearLayout>
+
+            <LinearLayout style="@style/ActivityStatusItemStyle">
+                <TextView style="@style/ActivityStatusLabelStyle" android:text="NGỦ" />
+                <TextView android:id="@+id/tvNap" style="@style/ActivityStatusValueStyle" android:text="Ngoan" />
+            </LinearLayout>
+
+            <LinearLayout style="@style/ActivityStatusItemStyle">
+                <TextView style="@style/ActivityStatusLabelStyle" android:text="VỆ SINH" />
+                <TextView android:id="@+id/tvHygiene" style="@style/ActivityStatusValueStyle" android:text="Tốt" />
+            </LinearLayout>
+        </GridLayout>
+
+        <TextView
+            android:id="@+id/tvTeacherComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#F8FAFC"
+            android:padding="10dp"
+            android:text="Lời phê: Bé hôm nay rất ngoan, tự xúc ăn..."
+            android:textColor="#64748B"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

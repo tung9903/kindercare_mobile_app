@@ -6,13 +6,13 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.Model.Student
+import com.example.myapplication.Model.TeacherStudentResponse
 import com.example.myapplication.R
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.imageview.ShapeableImageView
 
 class StudentMealAdapter(
-    private var studentList: List<Student>
+    private var studentList: List<TeacherStudentResponse>
 ) : RecyclerView.Adapter<StudentMealAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -29,12 +29,13 @@ class StudentMealAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val student = studentList[position]
-        holder.tvName.text = student.FullName
-        holder.ivAvatar.setImageResource(student.avatarResId)
+        holder.tvName.text = student.fullName
+        // Tạm thời dùng ảnh mặc định, sau này dùng Glide load student.avatarUrl
+        holder.ivAvatar.setImageResource(R.drawable.avatar)
 
         holder.toggleGroup.clearOnButtonCheckedListeners()
 
-        val checkedId = when (student.mealStatus) {
+        val checkedId = when (student.status) {
             "FULL" -> R.id.btnFull
             "HALF" -> R.id.btnHalf
             "LESS" -> R.id.btnLess
@@ -44,7 +45,7 @@ class StudentMealAdapter(
 
         holder.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                student.mealStatus = when (checkedId) {
+                student.status = when (checkedId) {
                     R.id.btnFull -> "FULL"
                     R.id.btnHalf -> "HALF"
                     R.id.btnLess -> "LESS"
@@ -56,7 +57,7 @@ class StudentMealAdapter(
 
     override fun getItemCount(): Int = studentList.size
 
-    fun updateData(newList: List<Student>) {
+    fun updateData(newList: List<TeacherStudentResponse>) {
         this.studentList = newList
         notifyDataSetChanged()
     }

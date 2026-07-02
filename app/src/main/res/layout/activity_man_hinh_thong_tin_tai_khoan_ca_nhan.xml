@@ -171,6 +171,42 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileDob"
+                        style="@style/ProfileTextStyle"
+                        android:text="Ngày sinh: 01/01/1990" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_view"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileGender"
+                        style="@style/ProfileTextStyle"
+                        android:text="Giới tính: Nữ" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_lock_idle_lock"
+                        app:tint="#64748B" />
+                    <TextView
+                        android:id="@+id/tvProfileIdCard"
+                        style="@style/ProfileTextStyle"
+                        android:text="Số CCCD: 0123456789" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/ProfileInfoRowStyle">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@android:drawable/ic_menu_info_details"
                         app:tint="#64748B" />
                     <TextView

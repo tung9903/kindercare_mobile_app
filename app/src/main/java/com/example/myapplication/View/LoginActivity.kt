@@ -3,6 +3,7 @@ package com.example.myapplication.View
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,9 @@ import com.example.myapplication.Model.DataManager
 import com.example.myapplication.R
 import com.example.myapplication.View.GiaoVien.ManHinhBangDieuKhien
 import com.example.myapplication.View.PhuHuynh.HomePHActivity
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.messaging.FirebaseMessaging
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -25,13 +29,11 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvForgotPassword: TextView
     private lateinit var btnLogin: Button
     
-    // Base URL của Backend (Server Test thực tế)
     private val BASE_URL = "https://web-test.kindercare.app/api/v1"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // 1. Kiểm tra Auto Login trước khi hiện giao diện
         checkAutoLogin()
 
         enableEdgeToEdge()
@@ -51,16 +53,12 @@ class LoginActivity : AppCompatActivity() {
     private fun checkAutoLogin() {
         val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
         val token = pref.getString("token", null)
-        val role = pref.getString("role", null) // Đây là role từ server đã lưu (parent/teacher)
+        val role = pref.getString("role", null)
 
         if (!token.isNullOrEmpty() && !role.isNullOrEmpty()) {
-            val intent = if (role.equals("parent", ignoreCase = true)) {
-                Intent(this, HomePHActivity::class.java)
-            } else {
-                Intent(this, ManHinhBangDieuKhien::class.java)
-            }
-            startActivity(intent)
-            finish()
+            Toast.makeText(this, "Tự động đăng nhập...", Toast.LENGTH_SHORT).show()
+            registerFcmToken(token)
+            navigateToDashboard(role)
         }
     }
 
@@ -70,6 +68,9 @@ class LoginActivity : AppCompatActivity() {
         spinnerRole = findViewById(R.id.spinnerRole)
         tvForgotPassword = findViewById(R.id.tvForgotPassword)
         btnLogin = findViewById(R.id.btnLogin)
+        
+        // Hiện lại spinner để người dùng chọn cổng đăng nhập chính xác
+        spinnerRole.visibility = View.VISIBLE
     }
 
     private fun setupRoleSpinner() {
@@ -80,9 +81,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        btnLogin.setOnClickListener {
-            handleLogin()
-        }
+        btnLogin.setOnClickListener { handleLogin() }
         tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
@@ -93,115 +92,143 @@ class LoginActivity : AppCompatActivity() {
         val password = edtPassword.text.toString().trim()
         val selectedRole = spinnerRole.selectedItem.toString()
 
+        // KIỂM TRA ĐIỀU KIỆN ĐẦU VÀO
         if (identifier.isEmpty()) {
             edtPhoneNumber.error = "Vui lòng nhập SĐT hoặc Username"
+            edtPhoneNumber.requestFocus()
             return
         }
         if (password.isEmpty()) {
-            edtPassword.error = "Mật khẩu không được để trống"
+            edtPassword.error = "Vui lòng nhập mật khẩu"
+            edtPassword.requestFocus()
             return
         }
 
-        // Vô hiệu hóa nút để tránh bấm nhiều lần
         btnLogin.isEnabled = false
-        btnLogin.text = "Đang xử lý..."
-
-        // Sử dụng Singleton Client từ DataManager để chạy nhanh hơn
-        val client = DataManager.okHttpClient
+        btnLogin.text = "Đang xác thực..."
 
         Thread {
             try {
-                // 1. Xác định URL dựa theo Role
-                val endpoint = if (selectedRole == "Phụ huynh") "/auth/parent/login" else "/auth/teacher/login"
-                
-                // 2. Tạo JSON body gửi lên (identifier & password)
-                val bodyJson = JSONObject()
-                    .put("identifier", identifier)
-                    .put("password", password)
-                    .toString()
+                // XÁC ĐỊNH ENDPOINT DỰA TRÊN SWAGGER (Chỉ còn Parent và Teacher)
+                val endpoint = if (selectedRole == "Giáo viên") "/auth/teacher/login" else "/auth/parent/login"
 
-                val jsonMediaType = "application/json; charset=utf-8".toMediaType()
-                val requestBody = bodyJson.toRequestBody(jsonMediaType)
+                val bodyJson = JSONObject().put("identifier", identifier).put("password", password).toString()
+                val requestBody = bodyJson.toRequestBody("application/json; charset=utf-8".toMediaType())
 
                 val req = Request.Builder()
                     .url(BASE_URL + endpoint)
-                    .addHeader("accept", "application/json") // Bổ sung Header Accept giống Curl
                     .post(requestBody)
                     .build()
 
-                Log.d("API_LOGIN", "Connecting to: ${BASE_URL + endpoint}")
-                Log.d("API_LOGIN", "Payload: $bodyJson")
-                Log.d("API_LOGIN", "Role Selected: $selectedRole")
-
-                // 3. Thực thi request
-                client.newCall(req).execute().use { resp ->
+                DataManager.okHttpClient.newCall(req).execute().use { resp ->
                     val body = resp.body?.string().orEmpty()
-                    val code = resp.code
-                    Log.d("API_LOGIN", "Response Code: $code")
-                    Log.d("API_LOGIN", "Response Body: $body")
-
-                    // Xử lý JSON phản hồi
                     val responseJson = try { JSONObject(body) } catch (e: Exception) { JSONObject() }
                     
-                    // Cải tiến: Chấp nhận thành công nếu code là 200 hoặc có success=true
-                    val isSuccessCode = resp.isSuccessful
-                    val successField = responseJson.optBoolean("success", false)
-                    val message = responseJson.optString("message", "Lỗi không xác định từ server")
-
                     runOnUiThread {
                         btnLogin.isEnabled = true
                         btnLogin.text = "Đăng nhập"
 
-                        if (isSuccessCode || successField) {
-                            Log.d("API_LOGIN", "Login Successful")
+                        if (resp.isSuccessful) {
                             val data = responseJson.optJSONObject("data")
                             val token = data?.optString("token")
                             val userObj = data?.optJSONObject("user")
                             
-                            // Lấy role từ server trả về (nếu có)
-                            val roleFromServer = userObj?.optString("role")
-                            
-                            val welcomeName = userObj?.optString("fullName") ?: userObj?.optString("username") ?: identifier
-                            Toast.makeText(this, "Chào mừng: $welcomeName", Toast.LENGTH_SHORT).show()
+                            val roleName = userObj?.optString("roleName") ?: if (selectedRole == "Giáo viên") "Teacher" else "Parent"
+                            val fullName = userObj?.optString("fullName") ?: identifier
 
-                            // Logic chuyển màn hình: Ưu tiên dựa trên lựa chọn Spinner của người dùng
-                            val intent = if (selectedRole == "Phụ huynh") {
-                                Intent(this, HomePHActivity::class.java)
-                            } else {
-                                Intent(this, ManHinhBangDieuKhien::class.java)
-                            }
-                            
-                            // Lưu Role chuẩn để Auto-Login (Ưu tiên role server, nếu không có thì lưu theo spinner)
-                            val finalRoleToSave = if (roleFromServer != null && roleFromServer.isNotEmpty()) {
-                                roleFromServer
-                            } else {
-                                if (selectedRole == "Phụ huynh") "parent" else "teacher"
-                            }
-                            
                             getSharedPreferences("KinderCarePref", MODE_PRIVATE).edit()
                                 .putString("token", token)
-                                .putString("role", finalRoleToSave)
-                                .putString("identifier", identifier)
+                                .putString("role", roleName)
                                 .apply()
 
-                            startActivity(intent)
-                            finish()
+                            Toast.makeText(this@LoginActivity, "Đăng nhập thành công! Chào mừng $fullName", Toast.LENGTH_SHORT).show()
+                            registerFcmToken(token)
+                            navigateToDashboard(roleName)
                         } else {
-                            // Hiển thị thông báo lỗi cụ thể từ Server hoặc mã lỗi HTTP
-                            val errorMsg = if (message.isNotEmpty()) message else "Mã lỗi: $code"
-                            Log.e("API_LOGIN", "Login Failed: $errorMsg")
-                            Toast.makeText(this, "Đăng nhập thất bại: $errorMsg", Toast.LENGTH_LONG).show()
+                            val msg = responseJson.optString("message", "Sai tài khoản hoặc mật khẩu")
+                            
+                            // HIỂN THỊ LỖI VÀ YÊU CẦU NHẬP LẠI
+                            Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                            edtPassword.setText("") // Xóa mật khẩu sai
+                            edtPassword.requestFocus() // Đưa con trỏ về ô mật khẩu
                         }
                     }
+                    return@use
                 }
             } catch (e: Exception) {
-                Log.e("API_LOGIN", "Connection Error: ${e.message}")
                 runOnUiThread {
                     btnLogin.isEnabled = true
                     btnLogin.text = "Đăng nhập"
-                    Toast.makeText(this, "Không thể kết nối server: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Lỗi kết nối Server", Toast.LENGTH_SHORT).show()
                 }
             }
         }.start()
+    }
+
+    private fun navigateToDashboard(role: String) {
+        val intent = if (role.equals("Parent", ignoreCase = true)) {
+            Intent(this, HomePHActivity::class.java)
+        } else {
+            Intent(this, ManHinhBangDieuKhien::class.java)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun registerFcmToken(authToken: String?) {
+        if (authToken.isNullOrEmpty()) return
+
+        val configRequest = Request.Builder()
+            .url("$BASE_URL/notifications/firebase-config")
+            .addHeader("Authorization", "Bearer $authToken")
+            .get()
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(configRequest).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val data = JSONObject(body).optJSONObject("data")
+                        if (data != null) {
+                            runOnUiThread { initializeFirebaseDynamically(data, authToken) }
+                        }
+                    }
+                    return@use
+                }
+            } catch (e: Exception) { }
+        }.start()
+    }
+
+    private fun initializeFirebaseDynamically(data: JSONObject, authToken: String) {
+        try {
+            val options = FirebaseOptions.Builder()
+                .setApiKey(data.getString("apiKey"))
+                .setApplicationId(data.getString("appId"))
+                .setProjectId(data.getString("projectId"))
+                .setStorageBucket(data.getString("storageBucket"))
+                .setGcmSenderId(data.getString("messagingSenderId"))
+                .build()
+
+            if (FirebaseApp.getApps(this).isEmpty()) {
+                FirebaseApp.initializeApp(this, options)
+            }
+            requestAndRegisterToken(authToken)
+        } catch (e: Exception) { }
+    }
+
+    private fun requestAndRegisterToken(authToken: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) return@addOnCompleteListener
+            val fcmToken = task.result
+            val json = JSONObject().apply { put("token", fcmToken); put("deviceType", "android") }
+            val body = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+            val request = Request.Builder()
+                .url("$BASE_URL/notifications/register-token")
+                .addHeader("Authorization", "Bearer $authToken")
+                .post(body).build()
+
+            Thread { try { DataManager.okHttpClient.newCall(request).execute() } catch (e: Exception) { } }.start()
+        }
     }
 }

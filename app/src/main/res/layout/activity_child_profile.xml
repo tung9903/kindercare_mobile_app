@@ -8,12 +8,11 @@
     android:background="@color/surface_light"
     tools:context=".View.PhuHuynh.ChildProfileActivity">
 
-    <!-- Top Toolbar -->
+    <!-- Top Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topBar"
+        android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_marginTop="18dp"
         android:background="@color/white"
         android:paddingHorizontal="20dp"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,7 +20,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/profile_title"
+            android:text="Hồ sơ của bé"
             android:textColor="@color/text_main"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -37,7 +36,6 @@
             android:background="@drawable/bg_input_rounded"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/imgAvatarHeader"
             app:layout_constraintTop_toTopOf="parent">
@@ -46,7 +44,6 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_gravity="center"
-                android:contentDescription="@string/desc_notification"
                 android:src="@drawable/ic_notification"
                 app:tint="@color/text_main" />
         </FrameLayout>
@@ -55,181 +52,234 @@
             android:id="@+id/imgAvatarHeader"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:contentDescription="@string/desc_profile"
-            android:src="@drawable/logo"
-            app:shapeAppearanceOverlay="@style/CircleImage"
             android:scaleType="centerCrop"
-            app:strokeColor="@color/border_color"
-            app:strokeWidth="1dp"
+            android:src="@drawable/logo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/CircleImage"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="110dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topBar">
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutNav"
+        app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingBottom="40dp">
 
-            <androidx.cardview.widget.CardView
+            <!-- Hero Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="2dp">
+                android:background="@color/white"
+                android:padding="24dp">
 
-                <LinearLayout
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgChildAvatar"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/logo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/surface_light"
+                    app:strokeWidth="4dp" />
+
+                <TextView
+                    android:id="@+id/tvStudentName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Nguyễn Minh Khang"
+                    android:textColor="@color/text_main"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/imgChildAvatar" />
+
+                <TextView
+                    android:id="@+id/tvEnrollmentStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_badge_status_green"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="ĐANG HỌC"
+                    android:textColor="@color/success"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvStudentName" />
+
+                <TextView
+                    android:id="@+id/tvNickname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Mối quan hệ: Ba"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvEnrollmentStatus" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Detail Grid -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="THÔNG TIN CHI TIẾT"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:padding="24dp"
-                    android:background="@color/white">
+                    android:columnCount="2"
+                    android:alignmentMode="alignMargins"
+                    android:columnOrderPreserved="false">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                    <include android:id="@+id/boxNgaySinh" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxGioiTinh" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxMaHocSinh" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxLop" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxCoSo" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxDiUng" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
+                    <include android:id="@+id/boxNienKhoa" layout="@layout/item_child_detail_box" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_margin="4dp"/>
 
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/imgChildAvatar"
-                            android:layout_width="140dp"
-                            android:layout_height="140dp"
-                            android:contentDescription="@string/desc_student_avatar"
-                            android:src="@drawable/logo"
-                            android:scaleType="centerCrop"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:shapeAppearanceOverlay="@style/CircleImage"
-                            app:strokeColor="@color/primary_green_light"
-                            app:strokeWidth="4dp" />
+                </GridLayout>
 
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/btnChangeAvatar"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
-                            android:src="@drawable/ic_camera"
-                            android:contentDescription="@string/desc_profile"
-                            app:fabCustomSize="44dp"
-                            app:backgroundTint="@color/primary_green"
-                            app:tint="@color/white"
-                            app:maxImageSize="20dp"
-                            app:elevation="4dp"
-                            app:layout_constraintBottom_toBottomOf="@id/imgChildAvatar"
-                            app:layout_constraintEnd_toEndOf="@id/imgChildAvatar" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- School Info Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="THÔNG TIN TRƯỜNG HỌC"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
 
-                    <TextView
-                        android:id="@+id/tvStudentName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:text="@string/student_name_mock"
-                        android:textColor="@color/text_main"
-                        android:textSize="26sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvNickname"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/nickname_mock"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/border_color"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tvSchoolName"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="2">
-                            <include
-                                android:id="@+id/boxNgaySinh"
-                                layout="@layout/item_child_detail_box"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp"
-                                android:layout_marginBottom="12dp" />
+                            android:text="Trường mầm non KinderCare"
+                            android:textColor="@color/text_main"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
 
-                            <include
-                                android:id="@+id/boxGioiTinh"
-                                layout="@layout/item_child_detail_box"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="6dp"
-                                android:layout_marginBottom="12dp" />
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tvSchoolAddress"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:weightSum="2">
-                            <include
-                                android:id="@+id/boxMaHocSinh"
-                                layout="@layout/item_child_detail_box"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="6dp" />
+                            android:layout_marginTop="4dp"
+                            android:text="65 Huỳnh Thúc Kháng, Bến Nghé, Quận 1"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
 
-                            <include
-                                android:id="@+id/boxNgayNhapHoc"
-                                layout="@layout/item_child_detail_box"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginStart="6dp" />
-                        </LinearLayout>
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="@color/surface_light" />
+
+                        <TextView
+                            android:id="@+id/tvBuildingInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tòa nhà: Tòa A (Khối Mầm)"
+                            android:textColor="@color/text_slate"
+                            android:textSize="14sp" />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRequestUpdate"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="28dp"
-                        android:text="@string/btn_update_info"
-                        android:textAllCaps="false"
-                        android:textColor="@color/primary_green"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        app:strokeColor="@color/primary_green"
-                        app:strokeWidth="2dp"
-                        app:icon="@drawable/ic_edit"
-                        app:iconTint="@color/primary_green"
-                        app:iconGravity="textStart"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        app:cornerRadius="16dp" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                <!-- Teachers Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="GIÁO VIÊN PHỤ TRÁCH"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
+
+                <LinearLayout
+                    android:id="@+id/layoutTeachers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- Action Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRequestUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="32dp"
+                    android:text="Yêu cầu chỉnh sửa hồ sơ"
+                    android:textAllCaps="false"
+                    android:textColor="@color/primary_green"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:strokeColor="@color/primary_green"
+                    app:strokeWidth="2dp"
+                    app:icon="@drawable/ic_edit"
+                    app:iconTint="@color/primary_green"
+                    app:iconGravity="textStart"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    app:cornerRadius="16dp" />
+
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Teacher-style Navigation for Parent -->
+    <!-- Bottom Navigation -->
     <include
         android:id="@+id/linearLayoutNav"
         layout="@layout/layout_bottom_navigation_ph"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

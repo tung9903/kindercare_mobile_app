@@ -1,231 +1,198 @@
 package com.example.myapplication.Model
 
 import com.example.myapplication.R
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-// Utility for Date Conversion
-object DateHelper {
-    fun formatLongToDate(timestamp: Long): String {
-        val date = Date(timestamp * 1000L) 
-        val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        return format.format(date)
-    }
-
-    fun formatLongToTime(timestamp: Long): String {
-        val date = Date(timestamp * 1000L)
-        val format = SimpleDateFormat("HH:mm", Locale.getDefault())
-        return format.format(date)
-    }
-}
-
-// --- Base API Response Wrapper ---
-data class ApiResponse<T>(
+// --- Authentication & Account Models ---
+data class LoginResponse(
     val success: Boolean,
-    val statusCode: Int,
     val message: String,
-    val data: T? = null
+    val token: String?,
+    val role: String?,
+    val accountId: Int?
 )
 
-// --- Teachers Table ---
 data class TeacherProfile(
-    val TeacherID: Int = 0,
-    var FullName: String = "",
-    var PhoneNumber: String? = null,
-    var Email: String? = null,
-    var DateOfBirth: Long? = null,
-    var Gender: String? = null,
-    var IDCard: String? = null,
-    var Address: String? = null,
-    var ProfessionalRank: String? = null,
-    var WorkStatus: String? = "Active",
-    var bio: String? = null, // UI specific
-    var AvatarURL: String? = null,
-    var avatarResId: Int = R.drawable.avatar
+    val teacherId: Int,
+    var fullName: String,
+    var phoneNumber: String?,
+    var email: String?,
+    var address: String?,
+    var professionalRank: String?,
+    var dateOfBirth: Long? = null,
+    var gender: String? = null,
+    var idCard: String? = null,
+    var bio: String? = null,
+    var avatarUrl: String? = null,
+    val avatarResId: Int = R.drawable.avatar
 )
 
-// --- Students Table ---
+// --- Student & Parent Models ---
 data class Student(
     val StudentID: Int,
     val FullName: String,
     val DateOfBirth: Long,
-    val Gender: String? = null,
-    val Allergies: String? = null,
-    val BloodType: String? = null,
-    val AdmissionDate: Long? = null,
-    val EnrollmentStatus: String? = "Active",
-    val AvatarURL: String? = null,
+    val Gender: String,
+    val Allergies: String?,
+    val BloodType: String?,
+    val EnrollmentDate: Long?,
+    val EnrollmentStatus: String,
+    var attendanceStatus: String? = null,
     val ClassID: Int? = null,
-    
-    // UI Extended properties
-    var parentName: String = "Phụ huynh",
-    var parentPhone: String = "090xxx",
-    var avatarResId: Int = R.drawable.avatar,
-    var nickname: String? = null,
-    var attendanceStatus: String = "Chưa có mặt",
-    var mealStatus: String = "FULL",
-    var height: Double = 0.0,
-    var weight: Double = 0.0,
-    var bmi: Double = 0.0,
-    var teacherComment: String = "",
-    var skillPhysical: Int = 0,
-    var skillCognitive: Int = 0,
-    var skillLanguage: Int = 0,
-    var skillAesthetic: Int = 0,
-    var skillEmotional: Int = 0
+    val parentName: String = "Phụ huynh",
+    val parentPhone: String = "0900000000",
+    val avatarResId: Int = R.drawable.avatar,
+    val nickname: String? = null
 ) {
-    fun getFormattedDob() = DateHelper.formatLongToDate(DateOfBirth)
+    fun getFormattedDob(): String = DateHelper.formatLongToDate(DateOfBirth)
 }
 
-// --- MedicationRequests Table ---
-data class MedicationRequestModel(
-    val MedRequestID: Int,
-    val StudentID: Int,
-    val studentName: String = "",
-    val ParentID: Int?,
-    val RequestDate: Long,
-    val MedicineDetails: String,
-    val Dosage: String,
-    val Frequency: String? = null,
-    val TimeToTake: String? = null,
-    val ParentNote: String? = null,
-    val MedicineImageURL: String? = null,
-    var Status: String = "Pending", 
-    var TeacherNote: String? = null,
-    var avatarResId: Int = R.drawable.avatar
-)
-
-// --- DailySchedules Table ---
-data class DailySchedule(
-    val DailyScheduleID: Int,
-    val ClassID: Int,
-    val ScheduleDate: Long,
-    val StartTime: Long,
-    val EndTime: Long,
-    val ActivityName: String,
-    val Details: String?,
-    val Location: String?,
-    val ActivityType: String, 
-    val Status: String 
-) {
-    fun getTimeRange() = "${DateHelper.formatLongToTime(StartTime)} - ${DateHelper.formatLongToTime(EndTime)}"
-}
-
-// --- LeaveRequests Table ---
+// --- Leave Requests Models ---
 data class LeaveRequestModel(
-    val RequestID: Int = 0,
-    val StudentID: Int = 0,
-    val studentName: String = "",
-    val parentName: String = "",
-    val className: String? = null, // UI/Join
-    val ParentID: Int? = null,
-    val FromDate: Long = 0,
-    val ToDate: Long = 0,
-    val Reason: String? = null,
-    val EvidenceURL: String? = null,
-    var Status: String = "Pending",
-    val ApproverID: Int? = null,
-    val IsMealFeeDeducted: Boolean = false,
-    val ParentNotes: String? = null,
-    val CreatedAt: Long? = null,
-    var avatarResId: Int = R.drawable.avatar,
-    val evidenceImages: List<Int> = emptyList(),
-    // PhuHuynh specific
-    val isMorningOff: Boolean = false,
-    val isAfternoonOff: Boolean = false,
-    val reasonCategory: String = ""
+    val requestId: Int,
+    val studentId: Int,
+    val studentName: String,
+    val studentAvatar: String? = null,
+    val className: String? = null,
+    val parentId: Int? = null,
+    val parentName: String? = null,
+    val parentPhone: String? = null,
+    val fromDate: Long,
+    val toDate: Long,
+    val reason: String,
+    val evidenceUrl: String? = null,
+    var status: String = "Pending",
+    val isMealFeeDeducted: Boolean = false,
+    val parentNotes: String? = null,
+    val createdAt: Long = (System.currentTimeMillis() / 1000),
+    val avatarResId: Int = R.drawable.avatar,
+    val approverId: Int? = null
 ) {
     fun getDurationText(): String {
-        return if (FromDate == ToDate) DateHelper.formatLongToDate(FromDate)
-        else "${DateHelper.formatLongToDate(FromDate)} - ${DateHelper.formatLongToDate(ToDate)}"
+        return if (fromDate == toDate) DateHelper.formatLongToDate(fromDate)
+        else "${DateHelper.formatLongToDate(fromDate)} - ${DateHelper.formatLongToDate(toDate)}"
     }
 }
 
 // --- Notifications Table ---
 data class NotificationModel(
-    val NotifID: Int,
-    val UserID: Int?,
-    val Title: String,
-    val Message: String,
-    val Type: String?,
-    val ActionLink: String? = null,
-    var IsRead: Boolean = false,
-    val IsCritical: Boolean = false,
-    val CreatedAt: Long = (System.currentTimeMillis() / 1000),
-    // PhuHuynh specific
-    val isUrgent: Boolean = false,
-    val hasAction: Boolean = false
-)
+    val notifId: Int,
+    val userId: Int?,
+    val title: String,
+    val message: String,
+    val type: String?,
+    var isRead: Int = 0, // Theo Swagger: 0 hoặc 1
+    val isCritical: Int = 0,
+    val dataPayload: String? = null, // Dạng JSON string
+    val createdAt: Long,
+    val updatedAt: Long
+) {
+    fun getFormattedDate(): String = DateHelper.formatLongToDate(createdAt)
+    fun isReadBool(): Boolean = isRead == 1
+}
 
 // --- DailyActivities Table ---
 data class DailyActivity(
-    val ActivityID: Int,
-    val StudentID: Int,
-    val ActivityDate: Long,
-    var EatingStatus: String?,
-    var SleepingStatus: String?,
-    var HygieneStatus: String?,
-    var TeacherNote: String?
+    val activityId: Int,
+    val studentId: Int,
+    val logDate: String,
+    var breakfastStatus: String?,
+    var lunchStatus: String?,
+    var napStatus: String?,
+    var snackStatus: String?,
+    var hygieneStatus: String?,
+    var teacherNote: String?,
+    val recordedBy: Int?,
+    val updatedAt: Long
 )
 
 // --- HealthRecords Table ---
 data class HealthRecord(
-    val RecordID: Int,
-    val StudentID: Int,
-    val TermPeriod: String,
-    val Height: Double,
-    val Weight: Double,
-    val BMI: Double
+    val recordId: Int,
+    val studentId: Int,
+    val termPeriod: String,
+    var height: Double,
+    var weight: Double,
+    var bmi: Double
 )
 
 // --- StudentAssessments Table ---
 data class StudentAssessment(
-    val AssessmentID: Int,
-    val StudentID: Int,
-    val AssessmentMonth: String,
-    val PhysicalScore: Int,
-    val CognitiveScore: Int,
-    val LanguageScore: Int,
-    val SocioEmotionalScore: Int,
-    val AestheticScore: Int,
-    var TeacherComment: String?,
-    val CreatedAt: Long
+    val assessmentId: Int,
+    val studentId: Int,
+    val assessmentMonth: String,
+    var physicalScore: Int,
+    var cognitiveScore: Int,
+    var languageScore: Int,
+    var socioEmotionalScore: Int,
+    var aestheticScore: Int,
+    var teacherComment: String?,
+    val createdAt: Long
 )
 
 // --- Invoices Table ---
 data class InvoiceModel(
-    val InvoiceID: Int,
-    val StudentID: Int,
-    val BillingMonth: String,
-    val TuitionFee: Double,
-    val ExpectedMealFee: Double,
-    val ExtracurricularFee: Double,
-    val Surcharge: Double,
-    val RefundAmount: Double,
-    val DiscountAmount: Double,
-    val TotalAmount: Double,
-    val PaymentStatus: String 
+    val invoiceId: Int,
+    val studentId: Int,
+    val billingMonth: String,
+    val tuitionFee: Double,
+    val expectedMealFee: Double,
+    val extracurricularFee: Double,
+    val surcharge: Double,
+    val refundAmount: Double,
+    val discountAmount: Double,
+    val totalAmount: Double,
+    val paymentStatus: String 
 )
 
-// --- Menu Models ---
-data class MenuItem(
-    val DishName: String,
-    val NutritionalDetails: String?,
-    val Calories: Int? = null
+// --- DailySchedules Table ---
+data class DailySchedule(
+    val dailyScheduleId: Int,
+    val classId: Int,
+    val scheduleDate: Long,
+    val startTime: Long,
+    val endTime: Long,
+    val activityName: String,
+    val details: String?,
+    val location: String?,
+    val activityType: String, 
+    val status: String
+) {
+    fun getTimeRange(): String = "${DateHelper.formatLongToTime(startTime)} - ${DateHelper.formatLongToTime(endTime)}"
+}
+
+// --- DailyLessons Table ---
+data class DailyLesson(
+    val lessonLogId: Int,
+    val classId: Int,
+    val lessonDate: Long,
+    val subjectName: String,
+    val lessonTitle: String,
+    val details: String,
+    val iconType: String?,
+    val createdAt: Long,
+    val updatedAt: Long
 )
 
-data class Meal(
-    val MealType: String,
-    val dishes: List<MenuItem>
+// --- MedicationRequests Table ---
+data class MedicationRequestModel(
+    val medRequestId: Int,
+    val studentId: Int,
+    val studentName: String,
+    val studentAvatar: String? = null,
+    val parentId: Int,
+    val requestDate: Long,
+    val medicineDetails: String,
+    val dosage: String,
+    val frequency: String? = null,
+    val timeToTake: String? = null,
+    val parentNote: String? = null,
+    val medicineImageUrl: String? = null,
+    var status: String = "Pending",
+    val teacherNote: String? = null,
+    val avatarResId: Int = R.drawable.avatar
 )
 
-data class DailyMenu(
-    val date: String,
-    val meals: List<Meal>
-)
-
-// --- Newsfeed Model ---
+// --- News/Posts Table ---
 data class ActivityPost(
     val id: String,
     val teacherName: String,
@@ -233,6 +200,7 @@ data class ActivityPost(
     val dateText: String,
     val contentTitle: String,
     val imageResId: Int? = null,
+    val imageUri: String? = null,
     val avatarResId: Int? = null,
     val postType: String = "Activity"
 )
@@ -245,7 +213,7 @@ data class ChatItem(
     val Time: Long,
     var avatarResId: Int = R.drawable.avatar,
     val isOnline: Boolean = false,
-    val hasNewMessage: Boolean = false, // UI
+    val hasNewMessage: Boolean = false,
     val isUnread: Boolean = false,
     val isTyping: Boolean = false
 ) {
@@ -254,16 +222,22 @@ data class ChatItem(
 
 data class FeatureModel(val title: String, val iconRes: Int? = null)
 
-data class MomentModel(val dateText: String, val isToday: Boolean, val imageResIds: List<Int>)
+data class MomentModel(
+    val dateText: String,
+    val isToday: Boolean,
+    val imageResIds: List<Int> = emptyList(),
+    val imageUrls: List<String> = emptyList(),
+    val caption: String? = null
+)
 
 // --- Attendance Table ---
 data class AttendanceRecord(
     val attendanceId: Int,
     val studentId: Int,
-    val attendanceDate: Long, // timestamp giây
-    val status: String, // "Present", "Absent", "Leave"
-    val checkInTime: Long? = null, // timestamp giây
-    val checkOutTime: Long? = null, // timestamp giây
+    val attendanceDate: Long,
+    val status: String,
+    val checkInTime: Long? = null,
+    val checkOutTime: Long? = null,
     val pickedUpBy: String? = null
 )
 
@@ -273,94 +247,133 @@ data class UpcomingEvent(val day: String, val month: String, val title: String, 
 
 data class ChildInfoModel(val label: String, val value: String)
 
-data class VaccineModel(val name: String, val status: String, val isVaccinated: Boolean)
-
-data class ReportModel(val title: String, val content: String, val time: String)
-
-data class TuitionItem(val title: String, val isPaid: Boolean)
-
-sealed class HomeItem {
-    data class HeaderTitle(val title: String) : HomeItem()
-    
-    data class FeaturesBlock(val list: List<FeatureModel>) : HomeItem()
-    
-    data class MomentItem(val moment: MomentModel) : HomeItem()
-}
-
-// --- Models cho API Get Users By Role ---
-data class UserProfileResponse(
-    val userId: Int,
-    val username: String,
-    val roleId: Int,
-    val roleName: String,
+data class ReportModel(
+    val id: Int,
+    val title: String,
+    val date: String,
     val status: String,
-    val avatarUrl: String?,
-    val fullName: String?,
-    val email: String?,
-    val phoneNumber: String?,
-    // Parent specific
-    val job: String? = null,
-    val address: String? = null, 
-    // Teacher specific
-    val dateOfBirth: Long? = null,
-    val gender: String? = null,
-    val idCard: String? = null,
-    val professionalRank: String? = null,
-    val workStatus: String? = null
+    val description: String? = null
 )
 
-data class UsersByRoleData(
-    val Admin: List<UserProfileResponse>? = null,
-    val Principal: List<UserProfileResponse>? = null,
-    val Teacher: List<UserProfileResponse>? = null,
-    val Parent: List<UserProfileResponse>? = null
+data class VaccineModel(
+    val name: String,
+    val status: String,
+    val isDone: Boolean
 )
 
-// --- Models cho API Get Children (Phụ huynh) ---
-data class StudentTeacher(
-    val teacherId: Int,
-    val fullName: String,
-    val phoneNumber: String?,
-    val email: String?,
-    val gender: String?,
-    val roleInClass: String?
+data class TeacherMenuResponse(
+    val date: String,
+    val meals: Map<String, List<String>>
 )
 
-data class ChildResponse(
+// --- Menu Models ---
+data class DailyMenu(val date: String, val meals: List<Meal>)
+data class Meal(val MealType: String, val dishes: List<MenuItem>)
+data class MenuItem(val DishName: String, val NutritionalDetails: String?, val Calories: Int?)
+
+// --- Request/Response API Models ---
+data class QuickAttendanceRequest(
+    val classId: Int,
+    val date: Long,
+    val attendanceData: List<AttendanceDataItem>
+)
+
+data class AttendanceDataItem(
+    val studentId: Int,
+    val status: String,
+    val checkInTime: Long?,
+    val checkOutTime: Long?,
+    val pickedUpBy: String?
+)
+
+data class TeacherClassResponse(
+    val classId: Int,
+    val className: String,
+    val studentCount: Int
+)
+
+data class LeaveRequestShort(
+    val requestId: Int,
+    val status: String,
+    val reason: String?
+)
+
+data class TeacherStudentResponse(
     val studentId: Int,
     val fullName: String,
-    val dateOfBirth: String?, // Dạng ISO hoặc String từ server
-    val gender: String?,
-    val allergies: String?,
-    val bloodType: String? = null,
-    val admissionDate: String?,
-    val enrollmentStatus: String?,
     val avatarUrl: String?,
-    val classId: Int?,
-    val className: String?,
-    val gradeName: String?,
-    val academicYearName: String?,
-    val buildingId: Int?,
-    val buildingName: String?,
-    val campusId: Int?,
-    val campusName: String?,
-    val campusAddress: String?,
-    val relationship: String?,
-    val isPrimary: Boolean,
-    val teachers: List<StudentTeacher>
+    var status: String?, 
+    var checkInTime: Long?,
+    val checkOutTime: Long?,
+    val pickedUpBy: String?,
+    val healthNote: String?,
+    val leaveRequest: LeaveRequestShort?
 )
 
 // --- Model cho API Get Parent Profile ---
 data class ParentProfileResponse(
-    val parentId: Int,
+    val accountId: Int,
     val fullName: String,
-    val phoneNumber: String?,
-    val email: String?,
-    val idCard: String?,
-    val job: String?,
-    val address: String?,
-    val avatarUrl: String?
+    val phoneNumber: String,
+    val email: String,
+    val address: String,
+    val occupation: String,
+    val idCard: String,
+    val relationship: String,
+    val workStatus: String,
+    val avatarUrl: String?,
+    val bio: String?,
+    val children: List<Student>
 )
 
+data class UserProfileResponse(
+    val userId: Int,
+    val fullName: String,
+    val role: String,
+    val phoneNumber: String?,
+    val avatarUrl: String?,
+    val email: String? = null,
+    val job: String? = null,
+    val address: String? = null,
+    val professionalRank: String? = null,
+    val workStatus: String? = null,
+    val bio: String? = null
+)
 
+// --- Firebase Config Model ---
+data class FirebaseConfig(
+    val apiKey: String,
+    val authDomain: String,
+    val projectId: String,
+    val storageBucket: String,
+    val messagingSenderId: String,
+    val appId: String
+)
 
+// --- DailyAlbums Table ---
+data class DailyAlbum(
+    val albumId: Int,
+    val classId: Int,
+    val teacherId: Int,
+    val albumDate: Long,
+    val caption: String?,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val photos: List<AlbumPhoto>
+)
+
+data class AlbumPhoto(
+    val photoId: Int,
+    val albumId: Int,
+    val photoUrl: String,
+    val description: String?,
+    val createdAt: Long
+)
+
+sealed class HomeItem {
+    data class HeaderTitle(val title: String) : HomeItem()
+    data class FeaturesBlock(val list: List<FeatureModel>) : HomeItem()
+    data class MomentItem(val moment: MomentModel) : HomeItem()
+}
+
+data class CalendarDay(val day: Int, var status: String)

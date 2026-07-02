@@ -2,6 +2,8 @@ package com.example.myapplication.View.GiaoVien
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -10,7 +12,10 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.Model.DataManager
+import com.example.myapplication.Model.DateHelper
 import com.example.myapplication.R
+import okhttp3.Request
+import org.json.JSONObject
 
 class ManHinhChucNangHoSoHocSinh : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,22 +31,73 @@ class ManHinhChucNangHoSoHocSinh : AppCompatActivity() {
         }
 
         val studentId = intent.getIntExtra("STUDENT_ID", -1)
-        val student = DataManager.studentList.find { it.StudentID == studentId }
-
-        if (student != null) {
-            findViewById<ImageView>(R.id.ivAvatarProfile).setImageResource(student.avatarResId)
-            findViewById<TextView>(R.id.tvTenProfile).text = student.FullName
-            findViewById<TextView>(R.id.tvNgaySinhProfile).text = student.getFormattedDob()
-            findViewById<TextView>(R.id.tvThongTinPhuProfile).text = student.Gender
-            findViewById<TextView>(R.id.tvTenPhuHuynhProfile).text = student.parentName
-            findViewById<TextView>(R.id.tvDiUngProfile).text = student.Allergies ?: "Không có"
-        }
-
+        
         findViewById<TextView>(R.id.btn_back).setOnClickListener {
             finish()
         }
 
+        if (studentId != -1) {
+            fetchStudentDetail(studentId)
+        }
+        
         setupButtons(studentId)
+    }
+
+    private fun fetchStudentDetail(studentId: Int) {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
+
+        val url = "https://web-test.kindercare.app/api/v1/teacher/students/$studentId"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .get()
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    Log.d("STUDENT_DETAIL", "Response: $body")
+                    if (response.isSuccessful && body != null) {
+                        val json = JSONObject(body)
+                        val data = json.optJSONObject("data")
+                        if (data != null) {
+                            runOnUiThread { bindData(data) }
+                        }
+                    } else {
+                        Log.e("STUDENT_DETAIL", "Failed: ${response.code}")
+                    }
+                    return@use
+                }
+            } catch (e: Exception) {
+                Log.e("STUDENT_DETAIL", "Error: ${e.message}")
+            }
+        }.start()
+    }
+
+    private fun bindData(data: JSONObject) {
+        findViewById<ImageView>(R.id.ivAvatarProfile).setImageResource(R.drawable.avatar)
+        
+        findViewById<TextView>(R.id.tvTenProfile).text = data.optString("fullName", "N/A")
+        findViewById<TextView>(R.id.tvStudentIdProfile).text = "ID: KC-" + data.optInt("studentId")
+        findViewById<TextView>(R.id.tvClassProfile).text = data.optString("className", "Lớp học")
+        
+        val dob = data.optLong("dateOfBirth", 0)
+        val dobText = if (dob > 0) DateHelper.formatLongToDate(dob) else "N/A"
+        findViewById<TextView>(R.id.tvNgaySinhProfile).text = dobText
+        
+        findViewById<TextView>(R.id.tvThongTinPhuProfile).text = data.optString("gender", "N/A")
+        
+        findViewById<TextView>(R.id.tvTenPhuHuynhProfile).text = data.optString("parentName", "Chưa cập nhật")
+        findViewById<TextView>(R.id.tvSdtPhuHuynhProfile).text = data.optString("parentPhone", "Chưa có SĐT")
+        
+        val allergies = data.optString("allergies", "Không có")
+        findViewById<TextView>(R.id.tvDiUngProfile).text = allergies
+
+        val status = data.optString("enrollmentStatus", "Active")
+        val statusText = if (status == "Active") "Đang học" else "Ngưng học"
+        findViewById<TextView>(R.id.tvStatusProfile).text = statusText
     }
 
     private fun setupButtons(studentId: Int) {

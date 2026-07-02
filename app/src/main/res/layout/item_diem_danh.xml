@@ -1,87 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://tools.android.com/apk/res/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="4dp"
-    android:background="@drawable/bg_student_item"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="12dp">
+    android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
-    <TextView
-        android:id="@+id/tvStudentIndex"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#333333"
-        android:textSize="14sp"
-        android:textStyle="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="1#" />
+        android:padding="12dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivStudentAvatar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/bg_avatar_placeholder"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tvStudentIndex"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent" />
+        <TextView
+            android:id="@+id/tvStudentIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="01" />
 
-    <TextView
-        android:id="@+id/tvStudentName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="#000000"
-        android:textSize="15sp"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:layout_constraintBottom_toTopOf="@+id/tvLeaveBadge"
-        app:layout_constraintEnd_toStartOf="@+id/tvStatusButton"
-        app:layout_constraintStart_toEndOf="@id/ivStudentAvatar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Lê Thanh Tùng" />
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivStudentAvatar"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="4dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvStudentIndex"
+            app:shapeAppearanceOverlay="@style/CircleImageStyle"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp" />
 
-    <TextView
-        android:id="@+id/tvLeaveBadge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Có phép"
-        android:textSize="10sp"
-        android:textColor="#027A48"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/tvStudentName"
-        app:layout_constraintTop_toBottomOf="@id/tvStudentName"
-        tools:visibility="visible" />
+        <LinearLayout
+            android:id="@+id/layoutInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@id/ivStudentAvatar"
+            app:layout_constraintEnd_toStartOf="@+id/tvStatusButton"
+            app:layout_constraintStart_toEndOf="@id/ivStudentAvatar"
+            app:layout_constraintTop_toTopOf="@id/ivStudentAvatar">
 
-    <TextView
-        android:id="@+id/tvStatusButton"
-        android:layout_width="80dp"
-        android:layout_height="36dp"
-        android:background="@drawable/bg_status_leave"
-        android:gravity="center"
-        android:text="Nghỉ"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:background="@drawable/bg_status_leave"
-        tools:text="Nghỉ" />
+            <TextView
+                android:id="@+id/tvStudentName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/text_main"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Nguyễn Minh Khang" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Sub Info Rows -->
+            <TextView
+                android:id="@+id/tvLeaveBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/bg_badge_light_green"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="1dp"
+                android:textColor="@color/dark_green_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="Có đơn nghỉ: Bé bị sốt"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvHealthNote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/error"
+                android:textSize="11sp"
+                android:textStyle="italic"
+                android:visibility="gone"
+                tools:text="⚠️ Sức khỏe: Bé hơi mệt"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tvAttendanceTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp"
+                android:visibility="gone"
+                tools:text="Vào: 07:30 | Ra: --:--"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStatusButton"
+            android:layout_width="94dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_status_unmarked"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/ivStudentAvatar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivStudentAvatar"
+            tools:text="Chưa có mặt" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

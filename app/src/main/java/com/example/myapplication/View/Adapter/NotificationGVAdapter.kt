@@ -36,11 +36,11 @@ class NotificationGVAdapter(
     override fun onBindViewHolder(holder: NotiViewHolder, position: Int) {
         val item = notiList[position]
 
-        holder.txtTitle.text = item.Title
-        holder.txtContent.text = item.Message
-        holder.txtTime.text = DateHelper.formatLongToDate(item.CreatedAt)
+        holder.txtTitle.text = item.title
+        holder.txtContent.text = item.message
+        holder.txtTime.text = DateHelper.formatLongToDate(item.createdAt)
 
-        if (item.IsRead) {
+        if (item.isReadBool()) {
             holder.txtTitle.setTextColor(Color.parseColor("#475467"))
             holder.txtTitle.typeface = Typeface.create(holder.txtTitle.typeface, Typeface.NORMAL)
             holder.txtContent.setTextColor(Color.parseColor("#98A2B3"))
@@ -52,7 +52,7 @@ class NotificationGVAdapter(
             holder.txtNewBadge.visibility = View.VISIBLE
         }
 
-        when (item.Type) {
+        when (item.type) {
             "MANAGEMENT" -> {
                 holder.iconContainer.backgroundTintList = ContextCompat.getColorStateList(holder.itemView.context, R.color.blue_light)
                 holder.imgIcon.setImageResource(R.drawable.ic_warning)
@@ -66,8 +66,8 @@ class NotificationGVAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            if (!item.IsRead) {
-                item.IsRead = true
+            if (!item.isReadBool()) {
+                item.isRead = 1
                 notifyItemChanged(position)
             }
             onItemClick(item)

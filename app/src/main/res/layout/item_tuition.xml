@@ -1,55 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardInvoice"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="16dp"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
-    app:cardElevation="2dp">
+    app:cardElevation="2dp"
+    app:strokeColor="@color/border_color"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvTuitionTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Học phí tháng 06/2026"
+                android:textColor="@color/text_main"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Học phí định kỳ"
-                android:textColor="@color/text_main"
-                android:textSize="15sp"
+                android:background="@drawable/bg_status_pending"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Chưa nộp"
+                android:textColor="@color/error"
+                android:textSize="11sp"
                 android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#F1F5F9" />
+
+        <!-- Bảng chi tiết phí -->
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stretchColumns="1">
+
+            <TableRow android:layout_marginBottom="4dp">
+                <TextView android:text="• Học phí chính:" android:textColor="#64748B" android:textSize="13sp" />
+                <TextView android:id="@+id/tvMainFee" android:gravity="end" android:text="2,000,000đ" android:textColor="#1E293B" android:textSize="13sp" />
+            </TableRow>
+
+            <TableRow android:layout_marginBottom="4dp">
+                <TextView android:text="• Tiền ăn dự kiến:" android:textColor="#64748B" android:textSize="13sp" />
+                <TextView android:id="@+id/tvMealFee" android:gravity="end" android:text="500,000đ" android:textColor="#1E293B" android:textSize="13sp" />
+            </TableRow>
+
+            <TableRow android:id="@+id/rowDiscount" android:layout_marginBottom="4dp" android:visibility="visible">
+                <TextView android:text="• Miễn giảm:" android:textColor="#64748B" android:textSize="13sp" />
+                <TextView android:id="@+id/tvDiscount" android:gravity="end" android:text="-100,000đ" android:textColor="@color/success" android:textSize="13sp" android:textStyle="bold" />
+            </TableRow>
+        </TableLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="8dp"
+            android:background="#F1F5F9" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Hạn thanh toán: 30/05/2024"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:text="TỔNG CỘNG:"
+                android:textColor="@color/text_main"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTuitionSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:text="2,400,000đ"
+                android:textColor="@color/primary_green"
+                android:textSize="18sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvStatusBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_status_pending"
-            android:gravity="center"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="6dp"
-            android:text="Chưa nộp"
-            android:textColor="@color/error"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPayNow"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="Thanh toán ngay"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@color/primary_green"
+            android:visibility="visible" />
+
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

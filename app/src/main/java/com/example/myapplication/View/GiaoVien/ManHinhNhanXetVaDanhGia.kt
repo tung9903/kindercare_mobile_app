@@ -1,12 +1,9 @@
 package com.example.myapplication.View.GiaoVien
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -15,18 +12,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myapplication.Model.DataManager
 import com.example.myapplication.R
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class ManHinhNhanXetVaDanhGia : AppCompatActivity() {
 
     private lateinit var edtComment: EditText
-    private lateinit var txtCharCount: TextView
     private lateinit var edtPhysical: EditText
     private lateinit var edtCognitive: EditText
     private lateinit var edtLanguage: EditText
     private lateinit var edtAesthetic: EditText
     private lateinit var edtEmotional: EditText
-    
     private var studentId: Int = -1
+    private var classId: Int = -1
+    private var assessmentMonth: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,22 +42,25 @@ class ManHinhNhanXetVaDanhGia : AppCompatActivity() {
         }
 
         initViews()
-
         studentId = intent.getIntExtra("STUDENT_ID", -1)
+        classId = intent.getIntExtra("CLASS_ID", 1) // Mặc định là 1 nếu không truyền
+        
+        // Lấy tháng hiện tại làm mặc định MM-YYYY
+        val cal = java.util.Calendar.getInstance()
+        assessmentMonth = String.format("%02d-%d", cal.get(java.util.Calendar.MONTH) + 1, cal.get(java.util.Calendar.YEAR))
+        
         loadStudentData()
 
-        findViewById<LinearLayout>(R.id.btn_back).setOnClickListener {
-            finish()
+        findViewById<View>(R.id.btn_back).setOnClickListener { finish() }
+        findViewById<View>(R.id.btn_submit_report).setOnClickListener { saveData() }
+        
+        findViewById<View>(R.id.btn_edit_skills).setOnClickListener {
+            enableSkillEdits(true)
         }
-
-        setupCharCounter()
-        setupSkillEdits()
-        setupActionButtons()
     }
 
     private fun initViews() {
         edtComment = findViewById(R.id.edt_teacher_comment)
-        txtCharCount = findViewById(R.id.txt_char_count)
         edtPhysical = findViewById(R.id.edt_skill_physical)
         edtCognitive = findViewById(R.id.edt_skill_cognitive)
         edtLanguage = findViewById(R.id.edt_skill_language)
@@ -64,81 +68,120 @@ class ManHinhNhanXetVaDanhGia : AppCompatActivity() {
         edtEmotional = findViewById(R.id.edt_skill_emotional)
     }
 
+    private fun enableSkillEdits(enabled: Boolean) {
+        edtPhysical.isEnabled = enabled
+        edtCognitive.isEnabled = enabled
+        edtLanguage.isEnabled = enabled
+        edtAesthetic.isEnabled = enabled
+        edtEmotional.isEnabled = enabled
+        if (enabled) edtPhysical.requestFocus()
+    }
+
     private fun loadStudentData() {
-        val student = DataManager.studentList.find { it.StudentID == studentId }
-        if (student != null) {
-            findViewById<TextView>(R.id.tvHeaderTitle).text = "Đánh giá: ${student.FullName}"
-            edtComment.setText(student.teacherComment)
-            edtPhysical.setText(student.skillPhysical.toString())
-            edtCognitive.setText(student.skillCognitive.toString())
-            edtLanguage.setText(student.skillLanguage.toString())
-            edtAesthetic.setText(student.skillAesthetic.toString())
-            edtEmotional.setText(student.skillEmotional.toString())
-        }
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
+
+        // Sử dụng API lấy đánh giá của cả lớp theo tháng: GET /teacher/classes/{classId}/assessments?month=MM-YYYY
+        val url = "https://web-test.kindercare.app/api/v1/teacher/classes/$classId/assessments?month=$assessmentMonth"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .get().build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    if (response.isSuccessful && body != null) {
+                        val json = JSONObject(body)
+                        val dataArray = json.optJSONArray("data")
+                        
+                        if (dataArray != null) {
+                            // Tìm đánh giá của học sinh cụ thể trong mảng trả về
+                            var found = false
+                            for (i in 0 until dataArray.length()) {
+                                val item = dataArray.getJSONObject(i)
+                                if (item.optInt("studentId") == studentId) {
+                                    runOnUiThread {
+                                        edtComment.setText(item.optString("teacherComment"))
+                                        edtPhysical.setText(item.optInt("physicalScore").toString())
+                                        edtCognitive.setText(item.optInt("cognitiveScore").toString())
+                                        edtLanguage.setText(item.optInt("languageScore").toString())
+                                        edtAesthetic.setText(item.optInt("aestheticScore").toString())
+                                        edtEmotional.setText(item.optInt("socioEmotionalScore").toString())
+                                    }
+                                    found = true
+                                    break
+                                }
+                            }
+                            
+                            if (!found) {
+                                runOnUiThread {
+                                    // Reset fields if no assessment found for this student this month
+                                    edtComment.setText("")
+                                    edtPhysical.setText("5")
+                                    edtCognitive.setText("5")
+                                    edtLanguage.setText("5")
+                                    edtAesthetic.setText("5")
+                                    edtEmotional.setText("5")
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) { e.printStackTrace() }
+        }.start()
     }
 
-    private fun setupActionButtons() {
-        findViewById<Button>(R.id.btn_submit_report).setOnClickListener {
-            saveData(true)
+    private fun saveData() {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null) ?: return
+
+        // Chuẩn bị item đánh giá cho học sinh hiện tại
+        val assessmentObj = JSONObject().apply {
+            put("studentId", studentId)
+            put("physicalScore", edtPhysical.text.toString().toIntOrNull() ?: 5)
+            put("cognitiveScore", edtCognitive.text.toString().toIntOrNull() ?: 5)
+            put("languageScore", edtLanguage.text.toString().toIntOrNull() ?: 5)
+            put("socioEmotionalScore", edtEmotional.text.toString().toIntOrNull() ?: 5)
+            put("aestheticScore", edtAesthetic.text.toString().toIntOrNull() ?: 5)
+            put("teacherComment", edtComment.text.toString())
         }
+
+        // Đóng gói vào mảng assessments theo API POST /teacher/classes/{classId}/assessments
+        val json = JSONObject().apply {
+            put("month", assessmentMonth)
+            val array = org.json.JSONArray()
+            array.put(assessmentObj)
+            put("assessments", array)
+        }
+
+        val body = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+        val url = "https://web-test.kindercare.app/api/v1/teacher/classes/$classId/assessments"
         
-        findViewById<Button>(R.id.btn_save_draft).setOnClickListener {
-            saveData(false)
-        }
-    }
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .post(body).build()
 
-    private fun saveData(isSubmit: Boolean) {
-        val student = DataManager.studentList.find { it.StudentID == studentId }
-        if (student != null) {
-            student.teacherComment = edtComment.text.toString()
-            student.skillPhysical = edtPhysical.text.toString().toIntOrNull() ?: student.skillPhysical
-            student.skillCognitive = edtCognitive.text.toString().toIntOrNull() ?: student.skillCognitive
-            student.skillLanguage = edtLanguage.text.toString().toIntOrNull() ?: student.skillLanguage
-            student.skillAesthetic = edtAesthetic.text.toString().toIntOrNull() ?: student.skillAesthetic
-            student.skillEmotional = edtEmotional.text.toString().toIntOrNull() ?: student.skillEmotional
-
-            if (isSubmit) {
-                Toast.makeText(this, "Đã gửi báo cáo đánh giá thành công!", Toast.LENGTH_LONG).show()
-                finish()
-            } else {
-                Toast.makeText(this, "Đã lưu bản nháp", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun setupCharCounter() {
-        edtComment.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val currentLength = s?.length ?: 0
-                txtCharCount.text = "$currentLength / 500 ký tự"
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    private fun setupSkillEdits() {
-        val btnEditSkills = findViewById<TextView>(R.id.btn_edit_skills)
-        val editTexts = listOf(edtPhysical, edtCognitive, edtLanguage, edtAesthetic, edtEmotional)
-
-        var isEditing = false
-
-        btnEditSkills.setOnClickListener {
-            isEditing = !isEditing
-            if (isEditing) {
-                btnEditSkills.text = "Xong"
-                editTexts.forEach { 
-                    it.isEnabled = true
-                    it.setBackgroundResource(android.R.drawable.edit_text) 
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val resBody = response.body?.string()
+                    runOnUiThread {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this, "Lưu đánh giá thành công!", Toast.LENGTH_SHORT).show()
+                            finish()
+                        } else {
+                            Log.e("SAVE_ASSESSMENT", "Error: $resBody")
+                            Toast.makeText(this, "Lỗi khi lưu: ${response.code}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
-                editTexts[0].requestFocus()
-            } else {
-                btnEditSkills.text = "Chỉnh sửa"
-                editTexts.forEach { 
-                    it.isEnabled = false
-                    it.background = null 
-                }
+            } catch (e: Exception) { 
+                e.printStackTrace()
+                runOnUiThread { Toast.makeText(this, "Lỗi kết nối", Toast.LENGTH_SHORT).show() }
             }
-        }
+        }.start()
     }
 }

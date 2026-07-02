@@ -1,127 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/surface_light">
 
-    <LinearLayout
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_header_zone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@android:color/white"
-        android:elevation="4dp">
+        android:background="@color/white"
+        android:elevation="4dp"
+        android:paddingTop="16dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back"
+                app:tint="#101828" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&lt; "
-                android:textColor="#101828"
-                android:textSize="26sp"
-                android:textStyle="normal" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:text="Quản lý đơn xin nghỉ"
                 android:textColor="#101828"
-                android:textSize="24sp"
-                android:textStyle="normal" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Tabs -->
         <LinearLayout
+            android:id="@+id/layout_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
             android:weightSum="3"
-            android:layout_marginBottom="16dp">
+            app:layout_constraintTop_toBottomOf="@id/btn_back">
 
             <TextView
                 android:id="@+id/tab_pending"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:background="@drawable/bg_filter_chip"
+                android:background="@drawable/bg_tab_selected"
                 android:gravity="center"
                 android:text="Đang chờ"
-                android:textColor="#344054"
-                android:textSize="15sp" />
+                android:textColor="#0E7055"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tab_approved"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="2dp"
                 android:layout_weight="1"
-                android:layout_marginHorizontal="3dp"
                 android:background="@drawable/bg_filter_chip"
                 android:gravity="center"
                 android:text="Đã duyệt"
-                android:textColor="#344054"
-                android:textSize="15sp" />
+                android:textColor="#475467"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tab_rejected"
                 android:layout_width="0dp"
-                android:layout_height="45dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:layout_marginStart="6dp"
                 android:background="@drawable/bg_filter_chip"
                 android:gravity="center"
                 android:text="Từ chối"
-                android:textColor="#344054"
-                android:textSize="15sp" />
+                android:textColor="#475467"
+                android:textSize="14sp" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/layout_info_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_sub_filter_bar"
-            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:background="#F8FAFC"
             android:gravity="center_vertical"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp">
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            app:layout_constraintTop_toBottomOf="@id/layout_tabs">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@android:drawable/ic_menu_my_calendar"
-                app:tint="#101828" />
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="#64748B" />
 
             <TextView
                 android:id="@+id/txt_filter_info"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="Hôm nay , ngày 18 tháng 6 năm 2026 | Tất cả lớp v"
-                android:textColor="#101828"
-                android:textSize="13sp"
-                android:textStyle="normal" />
+                android:layout_marginStart="8dp"
+                android:text="Danh sách đơn cần xử lý trong ngày"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_leave_requests"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/layout_header_zone"
-        android:padding="16dp"
+        android:layout_height="0dp"
         android:clipToPadding="false"
-        android:scrollbars="vertical" />
+        android:padding="12dp"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_header_zone"
+        tools:listitem="@layout/item_leave_request" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

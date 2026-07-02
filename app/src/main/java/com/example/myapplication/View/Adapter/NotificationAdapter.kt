@@ -23,6 +23,7 @@ class NotificationAdapter(
         val tvTime: TextView = itemView.findViewById(R.id.tvTime)
         val btnAction: Button = itemView.findViewById(R.id.btnAction)
         val viewUnreadDot: View = itemView.findViewById(R.id.viewUnreadDot)
+        val layoutContainer: View = itemView.findViewById(R.id.layoutContainer)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotiViewHolder {
@@ -33,24 +34,32 @@ class NotificationAdapter(
     override fun onBindViewHolder(holder: NotiViewHolder, position: Int) {
         val item = notiList[position]
 
-        holder.tvTitle.text = item.Title
-        holder.tvContent.text = item.Message
-        holder.tvTime.text = DateHelper.formatLongToDate(item.CreatedAt)
+        holder.tvTitle.text = item.title
+        holder.tvContent.text = item.message
+        holder.tvTime.text = DateHelper.formatLongToDate(item.createdAt)
 
-        if (item.IsRead) {
-            holder.tvTitle.setTextColor(Color.parseColor("#475467"))
+        // Phân loại thông báo khẩn cấp (isCritical là Int theo Swagger)
+        if (item.isCritical == 1) {
+            holder.layoutContainer.setBackgroundResource(R.drawable.bg_alert_red)
+            holder.tvTitle.setTextColor(Color.parseColor("#B42318"))
+        } else {
+            holder.layoutContainer.setBackgroundColor(Color.WHITE)
+            holder.tvTitle.setTextColor(Color.parseColor("#101828"))
+        }
+
+        if (item.isReadBool()) {
             holder.tvTitle.typeface = Typeface.create(holder.tvTitle.typeface, Typeface.NORMAL)
             holder.tvContent.setTextColor(Color.parseColor("#98A2B3"))
             holder.viewUnreadDot.visibility = View.GONE
         } else {
-            holder.tvTitle.setTextColor(Color.parseColor("#101828"))
             holder.tvTitle.typeface = Typeface.create(holder.tvTitle.typeface, Typeface.BOLD)
             holder.tvContent.setTextColor(Color.parseColor("#475467"))
             holder.viewUnreadDot.visibility = View.VISIBLE
-            holder.viewUnreadDot.setBackgroundColor(Color.parseColor("#2F80ED"))
+            holder.viewUnreadDot.setBackgroundResource(R.drawable.bg_circle_green)
         }
 
-        if (item.hasAction) {
+        // Logic action button dựa trên dataPayload hoặc type
+        if (item.dataPayload != null) {
             holder.btnAction.visibility = View.VISIBLE
             holder.btnAction.setOnClickListener { onItemClick(item) }
         } else {
@@ -58,8 +67,8 @@ class NotificationAdapter(
         }
 
         holder.itemView.setOnClickListener {
-            if (!item.IsRead) {
-                item.IsRead = true
+            if (!item.isReadBool()) {
+                item.isRead = 1
                 notifyItemChanged(position)
             }
             onItemClick(item)

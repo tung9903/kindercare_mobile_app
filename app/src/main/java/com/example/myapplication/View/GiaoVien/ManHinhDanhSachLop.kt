@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -15,14 +17,17 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.Model.DataManager
+import com.example.myapplication.Model.TeacherClassResponse
 import com.example.myapplication.R
 import com.example.myapplication.Utils.NavigationUtils
-import com.example.myapplication.View.Adapter.HocSinhAdapter
+import com.example.myapplication.View.Adapter.TeacherClassAdapter
+import okhttp3.Request
+import org.json.JSONObject
 
 class ManHinhDanhSachLop : AppCompatActivity() {
-
-    private lateinit var rvHocSinh: RecyclerView
-    private lateinit var adapter: HocSinhAdapter
+    private lateinit var rvClasses: RecyclerView
+    private lateinit var adapter: TeacherClassAdapter
+    private val classList = mutableListOf<TeacherClassResponse>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,23 +41,98 @@ class ManHinhDanhSachLop : AppCompatActivity() {
             insets
         }
 
+        initViews()
         setupRecyclerView()
-        setupBottomNavigation()
         setupSearch()
-        setupNotificationNavigation()
-        setupAvatarNavigation()
         setupTopActions()
+        setupBottomNavigation()
+        
+        fetchTeacherClasses()
+    }
+
+    private fun initViews() {
+        rvClasses = findViewById(R.id.rev_hocsinh) 
+        findViewById<EditText>(R.id.etSearchHocSinh).hint = "Tìm kiếm lớp học..."
+        
+        setupAvatarNavigation()
+        setupNotificationNavigation()
+    }
+
+    private fun setupRecyclerView() {
+        rvClasses.layoutManager = LinearLayoutManager(this)
+        adapter = TeacherClassAdapter(classList) { selectedClass ->
+            val intent = Intent(this, ManHinhDanhSachHocSinhCuaLop::class.java)
+            intent.putExtra("CLASS_ID", selectedClass.classId)
+            intent.putExtra("CLASS_NAME", selectedClass.className)
+            startActivity(intent)
+        }
+        rvClasses.adapter = adapter
+    }
+
+    private fun setupSearch() {
+        findViewById<EditText>(R.id.etSearchHocSinh).addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                adapter.filter(s.toString())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
     }
 
     private fun setupTopActions() {
-        findViewById<View>(R.id.imgCalendar).setOnClickListener {
-            Toast.makeText(this, "Tính năng lịch trình đang được phát triển", Toast.LENGTH_SHORT).show()
+        findViewById<ImageView>(R.id.imgCalendar).setOnClickListener {
+            Toast.makeText(this, "Tính năng Lịch đang phát triển", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        adapter.updateData(DataManager.studentList)
+    private fun fetchTeacherClasses() {
+        val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
+        val token = pref.getString("token", null)
+
+        if (token.isNullOrEmpty()) return
+
+        val url = "https://web-test.kindercare.app/api/v1/teacher/classes"
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $token")
+            .get()
+            .build()
+
+        Thread {
+            try {
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
+                    val body = response.body?.string()
+                    Log.d("CLASS_API", "Danh sách lớp trả về: $body")
+
+                    if (response.isSuccessful && body != null) {
+                        val jsonResponse = JSONObject(body)
+                        val dataArray = jsonResponse.optJSONArray("data")
+
+                        val tempClasses = mutableListOf<TeacherClassResponse>()
+                        dataArray?.let {
+                            for (i in 0 until it.length()) {
+                                val obj = it.getJSONObject(i)
+                                tempClasses.add(TeacherClassResponse(
+                                    classId = obj.optInt("classId"),
+                                    className = obj.optString("className", "Lớp chưa đặt tên"),
+                                    studentCount = obj.optInt("studentCount", 0)
+                                ))
+                            }
+                        }
+
+                        runOnUiThread {
+                            classList.clear()
+                            classList.addAll(tempClasses)
+                            adapter.updateData(classList)
+                        }
+                    } else {
+                        Log.e("CLASS_API", "Lỗi mạng hoặc Token: ${response.code}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CLASS_API", "Lỗi kết nối: ${e.message}")
+            }
+        }.start()
     }
 
     private fun setupAvatarNavigation() {
@@ -65,24 +145,6 @@ class ManHinhDanhSachLop : AppCompatActivity() {
         findViewById<View>(R.id.layoutNotification).setOnClickListener {
             startActivity(Intent(this, ManHinhChucNangThongBao::class.java))
         }
-    }
-
-    private fun setupRecyclerView() {
-        rvHocSinh = findViewById(R.id.rev_hocsinh)
-        adapter = HocSinhAdapter(DataManager.studentList)
-        rvHocSinh.layoutManager = LinearLayoutManager(this)
-        rvHocSinh.adapter = adapter
-    }
-
-    private fun setupSearch() {
-        val etSearch = findViewById<EditText>(R.id.etSearchHocSinh)
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                adapter.filter(s.toString())
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
     }
 
     private fun setupBottomNavigation() {

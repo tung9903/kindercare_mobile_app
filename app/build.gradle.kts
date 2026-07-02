@@ -51,4 +51,16 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // QR Code Scanning & Generation
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    implementation("com.google.zxing:core:3.5.3")
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // Image Loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Firebase Messaging
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.1")
 }

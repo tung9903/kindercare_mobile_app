@@ -21,25 +21,25 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_back"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:tint="@color/text_main" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="Dặn thuốc cho bé"
             android:textColor="@color/text_main"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/btnBack"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="8dp" />
+            app:layout_constraintStart_toEndOf="@id/btnBack"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -56,19 +56,199 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- New Request Placeholder (Simple) -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddNewRequest"
+            <!-- New Medication Request Form -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Tạo yêu cầu dặn thuốc mới"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:backgroundTint="@color/primary_green"
-                app:cornerRadius="16dp"
-                app:icon="@android:drawable/ic_input_add" />
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:background="@color/white">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tạo yêu cầu dặn thuốc"
+                        android:textColor="@color/primary_green"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="true"
+                        android:layout_marginBottom="16dp"/>
+
+                    <!-- Date Selection -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày cho bé uống"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvMedRequestDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_input_rounded"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:text="Chọn ngày"
+                        android:textColor="@color/text_main"
+                        android:textSize="15sp"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Medicine Details -->
+                    <EditText
+                        android:id="@+id/edtMedicineDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="Tên thuốc (Ví dụ: Siro Prospan)"
+                        android:paddingHorizontal="16dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_main"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Dosage -->
+                    <EditText
+                        android:id="@+id/edtDosage"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_input_rounded"
+                        android:hint="Liều dùng (Ví dụ: 5ml)"
+                        android:paddingHorizontal="16dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_main"
+                        android:layout_marginBottom="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <EditText
+                            android:id="@+id/edtFrequency"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:hint="Số lần/ngày"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_main" />
+
+                        <EditText
+                            android:id="@+id/edtTimeToTake"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_input_rounded"
+                            android:hint="Thời điểm (Sáng/Trưa)"
+                            android:paddingHorizontal="16dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/text_main" />
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/edtParentNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="@drawable/bg_input_rounded"
+                        android:gravity="top|start"
+                        android:hint="Ghi chú thêm cho giáo viên..."
+                        android:padding="16dp"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_main"
+                        android:inputType="textMultiLine"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Image Upload Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ảnh minh họa thuốc"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:layout_marginBottom="8dp" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp"
+                        android:layout_marginBottom="24dp">
+
+                        <!-- Khung khi chưa chọn ảnh -->
+                        <LinearLayout
+                            android:id="@+id/btnPickMedia"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_dashed_upload"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_camera"
+                                app:tint="@color/text_tertiary" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="Nhấn để chụp hoặc chọn ảnh"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_tertiary" />
+                        </LinearLayout>
+
+                        <!-- Khung Preview khi đã chọn ảnh -->
+                        <FrameLayout
+                            android:id="@+id/layoutImagePreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/imgMedPreview"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize8dp" />
+
+                            <ImageView
+                                android:id="@+id/btnRemoveImage"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="8dp"
+                                android:background="@drawable/bg_circle_white_alpha"
+                                android:padding="6dp"
+                                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                                app:tint="#D32F2F" />
+                        </FrameLayout>
+                    </FrameLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSubmitMedRequest"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Gửi yêu cầu dặn thuốc"
+                        android:textAllCaps="false"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/primary_green"
+                        app:cornerRadius="16dp"
+                        app:elevation="2dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
             <!-- History Section -->
             <TextView

@@ -14,12 +14,11 @@ import com.example.myapplication.Model.DataManager
 import com.example.myapplication.R
 import com.example.myapplication.View.LoginActivity
 import android.util.Log
+import com.bumptech.glide.Glide
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -27,8 +26,9 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvPhone: TextView
     private lateinit var tvEmail: TextView
     private lateinit var tvAddress: TextView
-    private lateinit var tvStatus: TextView
+    private lateinit var tvIdCard: TextView
     private lateinit var tvRole: TextView
+    private lateinit var tvStatus: TextView
     private lateinit var tvStudentName: TextView
     private lateinit var tvStudentClass: TextView
     private lateinit var tvStudentSchool: TextView
@@ -48,7 +48,7 @@ class ProfileActivity : AppCompatActivity() {
         initViews()
         setupClickListeners()
         fetchParentProfile()
-        fetchStudentInfo() // Gọi thêm API lấy thông tin con cái để hiển thị
+        fetchStudentInfo() 
     }
 
     private fun initViews() {
@@ -56,8 +56,9 @@ class ProfileActivity : AppCompatActivity() {
         tvPhone = findViewById(R.id.tvPhone)
         tvEmail = findViewById(R.id.tvEmail)
         tvAddress = findViewById(R.id.tvAddress)
-        tvStatus = findViewById(R.id.tvStatus)
+        tvIdCard = findViewById(R.id.tvIdCard)
         tvRole = findViewById(R.id.tvRole)
+        tvStatus = findViewById(R.id.tvStatus)
         tvStudentName = findViewById(R.id.tvStudentName)
         tvStudentClass = findViewById(R.id.tvStudentClass)
         tvStudentSchool = findViewById(R.id.tvStudentSchool)
@@ -70,22 +71,18 @@ class ProfileActivity : AppCompatActivity() {
         val btnChangePassword = findViewById<Button>(R.id.btnChangePassword)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
 
-        // Sự kiện Quay lại
         btnBack.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+            finish()
         }
 
-        // Sự kiện Cập nhật thông tin
         btnUpdateInfo.setOnClickListener {
             startActivity(Intent(this, UpdateInfoActivity::class.java))
         }
 
-        // Sự kiện Đổi mật khẩu
         btnChangePassword.setOnClickListener {
             startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
 
-        // Sự kiện Đăng xuất khỏi hệ thống
         btnLogout.setOnClickListener {
             handleLogout()
         }
@@ -95,16 +92,7 @@ class ProfileActivity : AppCompatActivity() {
         val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
         val token = pref.getString("token", null)
 
-        // Ghi log để kiểm tra Token
-        Log.d("PROFILE_API", "Token hiện tại: $token")
-
-        // Nếu không có token, không làm gì cả
-        if (token.isNullOrEmpty()) {
-            Log.e("PROFILE_API", "Lỗi: Không tìm thấy Token. Vui lòng đăng nhập lại.")
-            return
-        }
-
-        val client = DataManager.okHttpClient
+        if (token.isNullOrEmpty()) return
 
         val request = Request.Builder()
             .url("https://web-test.kindercare.app/api/v1/parent/profile")
@@ -114,9 +102,9 @@ class ProfileActivity : AppCompatActivity() {
 
         Thread {
             try {
-                client.newCall(request).execute().use { response ->
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
                     val body = response.body?.string()
-                    Log.d("PROFILE_API", "Kết quả trả về: $body")
+                    Log.d("PROFILE_API", "Response: $body")
                     
                     if (response.isSuccessful && body != null) {
                         val jsonResponse = JSONObject(body)
@@ -124,39 +112,35 @@ class ProfileActivity : AppCompatActivity() {
                         
                         runOnUiThread {
                             if (data != null) {
-                                Log.d("PROFILE_API", "Đang đổ dữ liệu lên giao diện...")
-                                
-                                // Khớp chính xác với các key từ API của bạn
-                                tvFullname.text = data.optString("fullName", "N/A")
+                                tvFullname.text = data.optString("fullName", "Phụ huynh")
                                 tvPhone.text = data.optString("phoneNumber", "N/A")
-                                tvEmail.text = data.optString("email", "Chưa cập nhật email")
-                                tvAddress.text = data.optString("address", "Chưa cập nhật địa chỉ")
+                                tvEmail.text = data.optString("email", "Chưa cập nhật")
+                                tvAddress.text = data.optString("address", "Chưa cập nhật")
                                 
-                                // Hiển thị thêm công việc nếu cần (tạm thời gộp vào vai trò hoặc log)
+                                val idCard = data.optString("idCard", "null")
+                                tvIdCard.text = "CCCD: " + if (idCard == "null") "Chưa cập nhật" else idCard
+                                
                                 val job = data.optString("job", "N/A")
+                                tvRole.text = "Nghề nghiệp: $job"
+                                
+                                // Mặc định role là phụ huynh nếu ko có roleName trả về
                                 val role = data.optString("roleName", "Phụ huynh")
-                                tvRole.text = "Vai trò: $role ($job)"
+                                tvStatus.text = "Vai trò: $role"
 
-                                val status = data.optString("status", "Đang hoạt động")
-                                tvStatus.text = "Trạng thái: $status"
-
-                                // Xử lý Avatar URL
                                 val avatarUrl = data.optString("avatarUrl", "")
-                                if (avatarUrl.isNotEmpty()) {
-                                    Log.d("PROFILE_API", "Tìm thấy URL ảnh: $avatarUrl")
-                                    // Ghi chú: Cần thêm thư viện Glide hoặc Coil để tải ảnh từ URL này
+                                if (avatarUrl.isNotEmpty() && avatarUrl != "null") {
+                                    Glide.with(this)
+                                        .load(avatarUrl)
+                                        .placeholder(R.drawable.avatar)
+                                        .into(imgAvatar)
                                 }
-                            } else {
-                                Log.e("PROFILE_API", "Lỗi: Đối tượng 'data' trong JSON bị null")
                             }
                         }
-                    } else {
-                        Log.e("PROFILE_API", "Lỗi HTTP: ${response.code} - ${response.message}")
                     }
+                    return@use
                 }
             } catch (e: Exception) {
-                Log.e("PROFILE_API", "Ngoại lệ (Exception): ${e.message}")
-                e.printStackTrace()
+                Log.e("PROFILE_API", "Error: ${e.message}")
             }
         }.start()
     }
@@ -164,10 +148,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun fetchStudentInfo() {
         val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
         val token = pref.getString("token", null)
-
         if (token.isNullOrEmpty()) return
-
-        val client = DataManager.okHttpClient
 
         val request = Request.Builder()
             .url("https://web-test.kindercare.app/api/v1/parent/children")
@@ -177,32 +158,25 @@ class ProfileActivity : AppCompatActivity() {
 
         Thread {
             try {
-                client.newCall(request).execute().use { response ->
+                DataManager.okHttpClient.newCall(request).execute().use { response ->
                     val body = response.body?.string()
-                    Log.d("STUDENT_API", "Kết quả trả về: $body")
-                    
                     if (response.isSuccessful && body != null) {
                         val jsonResponse = JSONObject(body)
                         val dataArray = jsonResponse.optJSONArray("data")
                         
                         if (dataArray != null && dataArray.length() > 0) {
-                            val firstChild = dataArray.getJSONObject(0) // Lấy thông tin bé đầu tiên
-                            Log.d("STUDENT_API", "Đang đổ dữ liệu bé: ${firstChild.optString("fullName")}")
+                            val firstChild = dataArray.getJSONObject(0)
                             runOnUiThread {
                                 tvStudentName.text = firstChild.optString("fullName", "N/A")
-                                tvStudentClass.text = firstChild.optString("className", "Chưa xếp lớp")
-                                tvStudentSchool.text = firstChild.optString("campusName", "Trường mầm non KinderCare")
+                                tvStudentClass.text = "Lớp: " + firstChild.optString("className", "Chưa xếp lớp")
+                                tvStudentSchool.text = firstChild.optString("campusName", "KinderCare Campus")
                             }
-                        } else {
-                            Log.e("STUDENT_API", "Lỗi: Danh sách học sinh trống hoặc null")
                         }
-                    } else {
-                        Log.e("STUDENT_API", "Lỗi HTTP: ${response.code}")
                     }
+                    return@use
                 }
             } catch (e: Exception) {
-                Log.e("STUDENT_API", "Ngoại lệ (Exception): ${e.message}")
-                e.printStackTrace()
+                Log.e("STUDENT_API", "Error: ${e.message}")
             }
         }.start()
     }
@@ -211,45 +185,25 @@ class ProfileActivity : AppCompatActivity() {
         val pref = getSharedPreferences("KinderCarePref", MODE_PRIVATE)
         val token = pref.getString("token", null)
 
-        if (token.isNullOrEmpty()) {
-            clearLocalDataAndGoToLogin()
-            return
+        clearLocalDataAndGoToLogin()
+
+        if (!token.isNullOrEmpty()) {
+            val request = Request.Builder()
+                .url("https://web-test.kindercare.app/api/v1/auth/logout")
+                .post("{}".toRequestBody("application/json".toMediaType()))
+                .addHeader("Authorization", "Bearer $token")
+                .build()
+
+            Thread {
+                try {
+                    DataManager.okHttpClient.newCall(request).execute()
+                } catch (e: Exception) { }
+            }.start()
         }
-
-        Toast.makeText(this, "Đang xử lý đăng xuất...", Toast.LENGTH_SHORT).show()
-
-        val client = DataManager.okHttpClient
-        val request = Request.Builder()
-            .url("https://web-test.kindercare.app/api/v1/auth/logout")
-            .post("{}".toRequestBody("application/json".toMediaType())) // POST không body
-            .addHeader("Authorization", "Bearer $token")
-            .addHeader("accept", "application/json")
-            .build()
-
-        Thread {
-            try {
-                client.newCall(request).execute().use { response ->
-                    // Dù thành công hay thất bại trên server, ta vẫn nên đăng xuất ở local
-                    runOnUiThread {
-                        if (response.isSuccessful) {
-                            Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show()
-                        }
-                        clearLocalDataAndGoToLogin()
-                    }
-                }
-            } catch (e: Exception) {
-                runOnUiThread {
-                    clearLocalDataAndGoToLogin()
-                }
-            }
-        }.start()
     }
 
     private fun clearLocalDataAndGoToLogin() {
-        // Xóa sạch dữ liệu đã lưu
         getSharedPreferences("KinderCarePref", MODE_PRIVATE).edit().clear().apply()
-
-        // Chuyển về màn hình đăng nhập và xóa stack các màn hình trước đó
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

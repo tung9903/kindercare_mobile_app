@@ -1,33 +1,35 @@
 package com.example.myapplication.View.Adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.Model.DataManager
-import com.example.myapplication.Model.Student
+import com.example.myapplication.Model.DateHelper
+import com.example.myapplication.Model.TeacherStudentResponse
 import com.example.myapplication.R
+import com.example.myapplication.View.GiaoVien.ManHinhChucNangHoSoHocSinh
 
 class DiemDanhAdapter(
-    private var studentList: List<Student>,
+    private var studentList: List<TeacherStudentResponse>,
     private val onStatusChanged: () -> Unit
 ) : RecyclerView.Adapter<DiemDanhAdapter.DiemDanhViewHolder>() {
 
-    private var fullStudentList: List<Student> = studentList
+    private var fullStudentList: List<TeacherStudentResponse> = studentList
     var isReadOnly: Boolean = false
 
     fun filter(query: String) {
         studentList = if (query.isEmpty()) {
             fullStudentList
         } else {
-            fullStudentList.filter { it.FullName.contains(query, ignoreCase = true) }
+            fullStudentList.filter { it.fullName.contains(query, ignoreCase = true) }
         }
         notifyDataSetChanged()
     }
 
-    fun updateData(newList: List<Student>) {
+    fun updateData(newList: List<TeacherStudentResponse>) {
         this.studentList = newList
         this.fullStudentList = newList
         notifyDataSetChanged()
@@ -40,70 +42,69 @@ class DiemDanhAdapter(
 
     override fun onBindViewHolder(holder: DiemDanhViewHolder, position: Int) {
         val student = studentList[position]
-        holder.tvIndex.text = "${position + 1}#"
-        holder.tvName.text = student.FullName
-        holder.ivAvatar.setImageResource(student.avatarResId)
+        holder.tvIndex.text = String.format("%02d", position + 1)
+        holder.tvName.text = student.fullName
+        holder.ivAvatar.setImageResource(R.drawable.avatar)
 
-        // Hiển thị nhãn "Có phép" nếu đơn nghỉ đã được duyệt
-        if (student.attendanceStatus == "Nghỉ" && DataManager.isLeaveApproved(student.StudentID)) {
+        if (student.leaveRequest != null && student.leaveRequest.status == "Approved") {
             holder.tvLeaveBadge.visibility = View.VISIBLE
+            holder.tvLeaveBadge.text = "Có đơn nghỉ: ${student.leaveRequest.reason ?: "Nghỉ phép"}"
         } else {
             holder.tvLeaveBadge.visibility = View.GONE
         }
 
-        updateStatusUI(holder.tvStatusButton, student.attendanceStatus)
+        if (!student.healthNote.isNullOrEmpty()) {
+            holder.tvHealthNote.visibility = View.VISIBLE
+            holder.tvHealthNote.text = "⚠️ Sức khỏe: ${student.healthNote}"
+        } else {
+            holder.tvHealthNote.visibility = View.GONE
+        }
+
+        val checkIn = student.checkInTime
+        if (checkIn != null) {
+            holder.tvAttendanceTime.visibility = View.VISIBLE
+            val inTime = DateHelper.formatLongToTime(checkIn)
+            val outTime = student.checkOutTime?.let { DateHelper.formatLongToTime(it) } ?: "--:--"
+            holder.tvAttendanceTime.text = "Vào: $inTime | Ra: $outTime"
+        } else {
+            holder.tvAttendanceTime.visibility = View.GONE
+        }
+
+        val displayStatus = student.status ?: "Chưa có mặt"
+        updateStatusUI(holder.tvStatusButton, displayStatus)
 
         holder.tvStatusButton.setOnClickListener {
-            if (isReadOnly) {
-                android.widget.Toast.makeText(holder.itemView.context, "Trạng thái đã khóa, không thể thay đổi", android.widget.Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            if (isReadOnly) return@setOnClickListener
+            student.status = when (student.status) {
+                "Present" -> "Absent"
+                "Absent" -> "Present"
+                else -> "Present"
             }
-
-            val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-            
-            // Logic chốt chặn sau 9h
-            if (hour >= 9) {
-                 android.widget.Toast.makeText(holder.itemView.context, "Đã quá 09:00, hệ thống đã tự động chốt và khóa điểm danh", android.widget.Toast.LENGTH_SHORT).show()
-                 return@setOnClickListener
-            }
-
-            if (hour < 8 && !DataManager.isLeaveApproved(student.StudentID)) {
-                android.widget.Toast.makeText(holder.itemView.context, "Chưa đến giờ điểm danh (08:00 - 09:00)", android.widget.Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Chuyển đổi trạng thái: Chưa có mặt -> Hiện diện -> Nghỉ -> Hiện diện
-            student.attendanceStatus = when (student.attendanceStatus) {
-                "Chưa có mặt" -> "Hiện diện"
-                "Hiện diện" -> "Nghỉ"
-                "Nghỉ" -> "Hiện diện"
-                else -> "Hiện diện"
-            }
-
-            // Cập nhật lại nhãn nghỉ phép
-            if (student.attendanceStatus == "Nghỉ" && DataManager.isLeaveApproved(student.StudentID)) {
-                holder.tvLeaveBadge.visibility = View.VISIBLE
-            } else {
-                holder.tvLeaveBadge.visibility = View.GONE
-            }
-
-            updateStatusUI(holder.tvStatusButton, student.attendanceStatus)
+            updateStatusUI(holder.tvStatusButton, student.status!!)
             onStatusChanged()
+        }
+        
+        holder.ivAvatar.setOnClickListener {
+            val intent = Intent(holder.itemView.context, ManHinhChucNangHoSoHocSinh::class.java)
+            intent.putExtra("STUDENT_ID", student.studentId)
+            holder.itemView.context.startActivity(intent)
         }
     }
 
     private fun updateStatusUI(tvStatus: TextView, status: String) {
-        tvStatus.text = status
         when (status) {
-            "Hiện diện" -> {
+            "Present" -> {
+                tvStatus.text = "Hiện diện"
                 tvStatus.setBackgroundResource(R.drawable.bg_status_present)
                 tvStatus.setTextColor(android.graphics.Color.WHITE)
             }
-            "Nghỉ" -> {
+            "Absent" -> {
+                tvStatus.text = "Nghỉ"
                 tvStatus.setBackgroundResource(R.drawable.bg_status_leave)
                 tvStatus.setTextColor(android.graphics.Color.WHITE)
             }
-            "Chưa có mặt" -> {
+            else -> {
+                tvStatus.text = "Chưa có mặt"
                 tvStatus.setBackgroundResource(R.drawable.bg_status_unmarked)
                 tvStatus.setTextColor(android.graphics.Color.parseColor("#64748B"))
             }
@@ -118,5 +119,7 @@ class DiemDanhAdapter(
         val tvName: TextView = itemView.findViewById(R.id.tvStudentName)
         val tvStatusButton: TextView = itemView.findViewById(R.id.tvStatusButton)
         val tvLeaveBadge: TextView = itemView.findViewById(R.id.tvLeaveBadge)
+        val tvHealthNote: TextView = itemView.findViewById(R.id.tvHealthNote)
+        val tvAttendanceTime: TextView = itemView.findViewById(R.id.tvAttendanceTime)
     }
 }

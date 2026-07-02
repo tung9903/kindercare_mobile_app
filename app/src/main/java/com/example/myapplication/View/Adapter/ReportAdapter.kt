@@ -11,10 +11,10 @@ import com.example.myapplication.R
 class ReportAdapter(private val reportList: List<ReportModel>) :
     RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
 
-    class ReportViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        val tvContent: TextView = itemView.findViewById(R.id.tvContent)
-        val tvTime: TextView = itemView.findViewById(R.id.tvTime)
+    class ReportViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
+        val tvContent: TextView = view.findViewById(R.id.tvContent)
+        val tvTime: TextView = view.findViewById(R.id.tvTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReportViewHolder {
@@ -26,9 +26,9 @@ class ReportAdapter(private val reportList: List<ReportModel>) :
     override fun onBindViewHolder(holder: ReportViewHolder, position: Int) {
         val report = reportList[position]
         holder.tvTitle.text = report.title
-        holder.tvContent.text = report.content
-        holder.tvTime.text = report.time
+        holder.tvContent.text = report.status
+        holder.tvTime.text = report.date
     }
 
-    override fun getItemCount(): Int = reportList.size
+    override fun getItemCount() = reportList.size
 }

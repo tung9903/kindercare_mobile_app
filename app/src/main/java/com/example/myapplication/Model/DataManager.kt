@@ -3,6 +3,7 @@ package com.example.myapplication.Model
 import com.example.myapplication.R
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
+import org.json.JSONObject
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
@@ -19,12 +20,12 @@ object DataManager {
     }
 
     var currentTeacher = TeacherProfile(
-        TeacherID = 5,
-        FullName = "Lê Quang Huy",
-        PhoneNumber = "0912345678",
-        Email = "huy.le@kindercare.edu.vn",
-        Address = "123 Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM",
-        ProfessionalRank = "Hạng II",
+        teacherId = 5,
+        fullName = "Lê Quang Huy",
+        phoneNumber = "0912345678",
+        email = "huy.le@kindercare.edu.vn",
+        address = "123 Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM",
+        professionalRank = "Hạng II",
         avatarResId = R.drawable.avatar
     )
 
@@ -39,27 +40,27 @@ object DataManager {
 
     val leaveRequests = mutableListOf(
         LeaveRequestModel(
-            RequestID = 1, StudentID = 22, studentName = "Phạm Tuấn Kiệt", parentName = "Phạm Văn Hùng",
-            className = "Mầm 2", FromDate = 1778803200, ToDate = 1778889600, Reason = "Bệnh/Ốm",
-            Status = "Pending", ParentNotes = "Bé Kiệt bị sốt xuất huyết.", avatarResId = R.drawable.avatar
+            requestId = 1, studentId = 22, studentName = "Phạm Tuấn Kiệt", parentName = "Phạm Văn Hùng",
+            className = "Mầm 2", fromDate = 1778803200, toDate = 1778889600, reason = "Bệnh/Ốm",
+            status = "Pending", parentNotes = "Bé Kiệt bị sốt xuất huyết.", avatarResId = R.drawable.avatar
         ),
         LeaveRequestModel(
-            RequestID = 3, StudentID = 21, studentName = "Lê Nhã Uyên", parentName = "Lê Thị Lan",
-            className = "Mầm 2", FromDate = 1781740800, ToDate = 1781740800, Reason = "Du lịch",
-            Status = "Approved", ApproverID = 5, ParentNotes = "Bé đi du lịch cùng gia đình.", avatarResId = R.drawable.avatar
+            requestId = 3, studentId = 21, studentName = "Lê Nhã Uyên", parentName = "Lê Thị Lan",
+            className = "Mầm 2", fromDate = 1781740800, toDate = 1781740800, reason = "Du lịch",
+            status = "Approved", approverId = 5, parentNotes = "Bé đi du lịch cùng gia đình.", avatarResId = R.drawable.avatar
         )
     )
 
     val medicationRequests = mutableListOf(
         MedicationRequestModel(
-            MedRequestID = 1, StudentID = 21, studentName = "Lê Nhã Uyên", ParentID = 4,
-            RequestDate = 1778803200, MedicineDetails = "Siro ho Prospan", Dosage = "Uống 5ml sau khi ăn trưa",
-            Status = "Completed", TeacherNote = "Cô đã cho bé uống lúc 11:30", avatarResId = R.drawable.avatar
+            medRequestId = 1, studentId = 21, studentName = "Lê Nhã Uyên", parentId = 4,
+            requestDate = 1778803200, medicineDetails = "Siro ho Prospan", dosage = "Uống 5ml sau khi ăn trưa",
+            status = "Completed", teacherNote = "Cô đã cho bé uống lúc 11:30", avatarResId = R.drawable.avatar
         ),
         MedicationRequestModel(
-            MedRequestID = 2, StudentID = 1, studentName = "Nguyễn Minh Khang", ParentID = 4,
-            RequestDate = 1778803200, MedicineDetails = "Men tiêu hóa BioGaia", Dosage = "Nhỏ 5 giọt vào sữa xế",
-            Status = "Pending", avatarResId = R.drawable.avatar
+            medRequestId = 2, studentId = 1, studentName = "Nguyễn Minh Khang", parentId = 4,
+            requestDate = 1778803200, medicineDetails = "Men tiêu hóa BioGaia", dosage = "Nhỏ 5 giọt vào sữa xế",
+            status = "Pending", avatarResId = R.drawable.avatar
         )
     )
 
@@ -82,13 +83,19 @@ object DataManager {
     val parentChats = mutableListOf<ChatItem>()
     val attendanceHistory = mutableMapOf<String, List<Student>>()
 
+    // Temporary storage for current session
+    var currentAttendanceData: QuickAttendanceRequest? = null
+    
+    // Lưu trữ bé đang được chọn (Dùng cho Phụ huynh có nhiều con)
+    var selectedChild: JSONObject? = null
+
     init {
         val now = System.currentTimeMillis() / 1000
         allNotifications.addAll(listOf(
-            NotificationModel(1, 5, "Lịch họp chuyên môn tổ Mầm", "Chiều nay 15:00 tại Phòng Hội đồng...", "MANAGEMENT", null, false, false, now - 600),
-            NotificationModel(2, 5, "Thông báo nghỉ lễ 2/9", "Nhà trường thông báo lịch nghỉ lễ...", "MANAGEMENT", null, true, false, now - 86400),
-            NotificationModel(3, null, "Bé Nguyễn Minh Khang dặn thuốc", "Phụ huynh bé Khang vừa gửi yêu cầu...", "PARENTS", null, false, true, now - 1800),
-            NotificationModel(4, null, "Cập nhật hệ thống v2.1", "Hệ thống vừa cập nhật tính năng...", "SYSTEM", null, true, false, now - 172800)
+            NotificationModel(1, 5, "Lịch họp chuyên môn tổ Mầm", "Chiều nay 15:00 tại Phòng Hội đồng...", "MANAGEMENT", 0, 0, null, now - 600, now - 600),
+            NotificationModel(2, 5, "Thông báo nghỉ lễ 2/9", "Nhà trường thông báo lịch nghỉ lễ...", "MANAGEMENT", 1, 1, null, now - 86400, now - 86400),
+            NotificationModel(3, null, "Bé Nguyễn Minh Khang dặn thuốc", "Phụ huynh bé Khang vừa gửi yêu cầu...", "PARENTS", 0, 1, null, now - 1800, now - 1800),
+            NotificationModel(4, null, "Cập nhật hệ thống v2.1", "Hệ thống vừa cập nhật tính năng...", "SYSTEM", 1, 0, null, now - 172800, now - 172800)
         ))
 
         parentChats.addAll(listOf(
@@ -117,15 +124,15 @@ object DataManager {
     fun getCurrentMeal(): Meal = if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10) dailyMenu.meals[0] else dailyMenu.meals[1]
 
     fun approveRequest(requestId: Int) {
-        leaveRequests.find { it.RequestID == requestId }?.let {
-            it.Status = "Approved"
-            studentList.find { s -> s.StudentID == it.StudentID }?.attendanceStatus = "Nghỉ"
+        leaveRequests.find { it.requestId == requestId }?.let {
+            it.status = "Approved"
+            studentList.find { s -> s.StudentID == it.studentId }?.attendanceStatus = "Nghỉ"
         }
     }
 
-    fun rejectRequest(requestId: Int) { leaveRequests.find { it.RequestID == requestId }?.Status = "Rejected" }
+    fun rejectRequest(requestId: Int) { leaveRequests.find { it.requestId == requestId }?.status = "Rejected" }
 
-    fun isLeaveApproved(studentId: Int): Boolean = leaveRequests.any { it.StudentID == studentId && it.Status == "Approved" }
+    fun isLeaveApproved(studentId: Int): Boolean = leaveRequests.any { it.studentId == studentId && it.status == "Approved" }
 
     fun initializeDailyAttendance() {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
